@@ -1,13 +1,9 @@
 <template>
   <div>
-    <Row justify="center" align="middle" :gutter="10" style="margin-bottom:20px;">
-        <Col span="4">
-            <Input v-model="value" placeholder="输入用户昵称/手机号搜" search style="width:200px;"/>
-        </Col>
-        <Col span="6">
-            注册日期：<DatePicker type="daterange" :start-date="new Date(1991, 4, 14)" placement="bottom-end" placeholder="Select date" style="width: 200px"></DatePicker>
-        </Col>
-    </Row>
+    <div style="margin-bottom:20px;">
+        <Input v-model="value" placeholder="输入用户昵称/手机号搜" search style="width:200px;"/>
+          注册日期：<DatePicker type="daterange" placement="bottom-end" placeholder="Select date" style="width: 200px"></DatePicker>
+    </div>
     <Table stripe :columns="columns1" :data="data1"></Table>
   </div>
 </template>
