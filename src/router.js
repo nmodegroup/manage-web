@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import hump from './libs/hump'
 import Page from './views/layout/Page'
+//自由路由，路由优先级高于页面路由
 const routes = [
   {path: '/login', name: 'login', meta: {title: '登录'}, component: resolve => { require(['./views/home/login'], resolve) }}
 ];
@@ -21,9 +22,9 @@ pages.forEach(r => {
 routes.push({path: '/*', component: Page, children: pages})
 Vue.use(Router)
 const router = new Router({
-    linkActiveClass: 'active',
-    mode: 'history',
-    routes: routes
+  linkActiveClass: 'active',
+  mode: 'history',
+  routes: routes
 })
 router.beforeEach((to, from, next) => {
     document.title = to.meta.title
