@@ -4,10 +4,10 @@
       <div class="login-title">NIGHT MODE</div>
       <div class="login-content">
         <div class="form-bar">
-          <input type="text" placeholder="用户名">
+          <input type="text" placeholder="用户名" v-model="form.account">
         </div>
         <div class="form-bar">
-          <input type="text" placeholder="密码">
+          <input type="password" placeholder="密码" v-model="form.pwd">
         </div>
         <div class="form-bar">
           <button @click="onLogin">登录</button>
@@ -16,16 +16,28 @@
     </div>
   </div>
 </template>
-
 <script>
+import {login} from "../../api/login";
 export default {
   data () {
     return {
+      form: {
+        account: '',
+        pwd: ''
+      }
     }
   },
   methods: {
     onLogin () {
-      this.$goto('UserAccount')
+      if (!this.form.account) {
+        this.$Message.info('请输入账号')
+      } else if (!this.form.pwd) {
+        this.$Message.info('请输入密码')
+      } else {
+        login(this.form).then(res => {
+        
+        })
+      }
     }
   }
 }
