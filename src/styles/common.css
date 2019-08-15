@@ -5,8 +5,51 @@ html, body {
   padding:0;
   font-size: 14px;
   color: rgba(19, 26, 36, 1);
+  background-color: rgba(239, 239, 239, 1);
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 body>div{
   height: 100%;
+}
+.header-bar {
+  margin-bottom: 40px;
+}
+.seach-lable {
+  padding-left: 20px;
+}
+/* 修改iview样式 */
+.ivu-layout{
+  background-color: rgba(239, 239, 239, 1) !important;
+}
+.ivu-menu-dark.ivu-menu-vertical .ivu-menu-item:hover, .ivu-menu-dark.ivu-menu-vertical .ivu-menu-submenu-title:hover {
+  background: none !important;
+}
+.ivu-menu-dark.ivu-menu-vertical .ivu-menu-submenu .ivu-menu-item-active{
+  background-color:#172336 !important;
+}
+.ivu-menu-dark.ivu-menu-vertical .ivu-menu-submenu .ivu-menu-item-active, .ivu-menu-dark.ivu-menu-vertical .ivu-menu-submenu .ivu-menu-item-active:hover {
+  background-color:#172336 !important;
+}
+.ivu-menu-dark.ivu-menu-vertical .ivu-menu-submenu .ivu-menu-item-active::after{
+  content: '';
+  position: absolute;
+  width:6px;
+  height: 49px;
+  background-color: rgba(58, 124, 221, 1);
+  left:0;
+  top:0;
+}
+.ivu-menu-dark.ivu-menu-vertical .ivu-menu-opened {
+  background-color: rgba(19, 26, 36, 1) !important;
+}
+.ivu-menu-dark.ivu-menu-vertical .ivu-menu-opened .ivu-menu-submenu-title{
+  background-color: rgba(19, 26, 36, 1) !important;
+}
+.ivu-layout-sider{
+  background-color: rgba(19, 26, 36, 1) !important;
+}
+.ivu-menu-dark {
+  background:none !important;
 }

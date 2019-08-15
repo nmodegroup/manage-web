@@ -10,6 +10,8 @@ const routes = [
 let pages = [
     {path: '/user/account', meta: {title: '用户账号'}, component: resolve => { require(['./views/user/account'], resolve) }},
     {path: '/user/book/place', meta: {title: '桌位预订'}, component: resolve => { require(['./views/user/book-place'], resolve) }},
+    {path: '/user/book/remind', meta: {title: '桌位排位'}, component: resolve => { require(['./views/user/book-remind'], resolve) }},
+    {path: '/user/book/activity', meta: {title: '活动预订'}, component: resolve => { require(['./views/user/book-activity'], resolve) }},
     {path: '/', redirect: '/user/account'}
   ]
 // 页面
@@ -23,7 +25,6 @@ routes.push({path: '/*', component: Page, children: pages})
 Vue.use(Router)
 const router = new Router({
   linkActiveClass: 'active',
-  mode: 'history',
   routes: routes
 })
 router.beforeEach((to, from, next) => {

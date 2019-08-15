@@ -3,6 +3,7 @@ import iView from 'iview';
 import Routers from './router';
 import App from './app.vue';
 import 'iview/dist/styles/iview.css';
+import './styles/common.css'
 Vue.use(iView);
 // 路由跳转公用方法
 Vue.prototype.$goto = function (name, query, params) {

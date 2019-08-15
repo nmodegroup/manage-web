@@ -31,7 +31,6 @@ export default {
 }
 </script>
 <style scoped>
-@import '../../styles/common.css';
   .login-bg{
     background:rgba(239,239,239,1);
     width:100%;

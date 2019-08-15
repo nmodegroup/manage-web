@@ -1,10 +1,14 @@
 <template>
   <div>
-    <div style="margin-bottom:20px;">
+    <div class="header-bar">
         <Input v-model="value" placeholder="输入用户昵称/手机号搜" search style="width:200px;"/>
-          注册日期：<DatePicker type="daterange" placement="bottom-end" placeholder="Select date" style="width: 200px"></DatePicker>
+          <span class="seach-lable">注册日期：</span><DatePicker type="daterange" placement="bottom-end" placeholder="请选择注册日期" style="width: 200px"></DatePicker>
+          <span class="seach-lable">注册日期：</span> <DatePicker type="date" placeholder="请选择注册日期" style="width: 200px"></DatePicker>
     </div>
     <Table stripe :columns="columns1" :data="data1"></Table>
+    <div style="padding-top:30px;text-align:center;">
+      <Page :total="100" show-total  style=""/>
+    </div>
   </div>
 </template>
 <script>
@@ -14,43 +18,111 @@ export default {
       value: '',
       columns1: [
           {
-              title: 'Name',
-              key: 'name'
+              title: '头像',
+              key: 'portrait'
           },
           {
-              title: 'Age',
-              key: 'age'
+              title: '微信昵称',
+              key: 'nickName'
           },
           {
-              title: 'Address',
-              key: 'address'
+              title: '手机号',
+              key: 'phone'
+          },
+          {
+              title: '注册日期',
+              key: 'createTime'
+          },
+          {
+              title: '操作',
+              width: 300,
+              render: (h,params) => {
+                return h('div', [
+                h('a', {
+                  style: {
+                    "margin-right": "5px"
+                  },
+                  props: {
+                    href: "javascript:void(0)"
+                  },
+                  on: {
+                    click: () => {
+                      this.$Modal.confirm({
+                        title: '禁用提示',
+                        content: '确认禁用该商家账号吗？禁用后账号将无法使用！',
+                        onOk: () => {
+                          const data = {
+                            audit:2,
+                            id: params.row.id,
+                          };
+                          this.auditOperation(data)
+                        }
+                      });
+
+                    }
+                  }}, '桌位预订信息'),
+                h('a', {
+                  style: {
+                    "margin-right": "5px"
+                  },
+                  props: {
+                    href: "javascript:void(0)"
+                  }}, '桌位排位信息'),
+                h('a', {
+                  style: {
+                    "margin-right": "5px"
+                  },
+                  props: {
+                    href: "javascript:void(0)"
+                  }}, '桌位预订信息')])
+              }
+          },
+          {
+              title: '桌位预订次',
+              key: 'tableAppointNum'
+          },
+          {
+              title: '桌位排位次',
+              key: 'tableQueenNum'
+          },
+          {
+            title: '活动预订次',
+            key: 'activityAppointNum'
           }
       ],
       data1: [
           {
-              name: 'John Brown',
-              age: 18,
-              address: 'New York No. 1 Lake Park',
-              date: '2016-10-03'
+            nickName: '乌拉拉',
+            phone: 13652145214,
+            createTime: '2019-04-23',
+            tableAppointNum: 324,
+            tableQueenNum: 23,
+            activityAppointNum: 24
           },
           {
-              name: 'Jim Green',
-              age: 24,
-              address: 'London No. 1 Lake Park',
-              date: '2016-10-01'
+            nickName: '乌拉拉',
+            phone: 13652145214,
+            createTime: '2019-04-23',
+            tableAppointNum: 324,
+            tableQueenNum: 23,
+            activityAppointNum: 24
+          },
+           {
+            nickName: '乌拉拉',
+            phone: 13652145214,
+            createTime: '2019-04-23',
+            tableAppointNum: 324,
+            tableQueenNum: 23,
+            activityAppointNum: 24
           },
           {
-              name: 'Joe Black',
-              age: 30,
-              address: 'Sydney No. 1 Lake Park',
-              date: '2016-10-02'
+            nickName: '乌拉拉',
+            phone: 13652145214,
+            createTime: '2019-04-23',
+            tableAppointNum: 324,
+            tableQueenNum: 23,
+            activityAppointNum: 24
           },
-          {
-              name: 'Jon Snow',
-              age: 26,
-              address: 'Ottawa No. 2 Lake Park',
-              date: '2016-10-04'
-          }
       ]
     }
   },
@@ -59,7 +131,6 @@ export default {
   beforeCreate () {
   },
   created () {
-    
   },
   activated () {
   }

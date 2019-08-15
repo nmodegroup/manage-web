@@ -13,8 +13,8 @@
             </template>
             <MenuItem name="用户管理,账号管理" to="/user/account">账号管理</MenuItem>
             <MenuItem name="用户管理, 桌位预订" to="/user/book/place">桌位预订</MenuItem>
-            <MenuItem name="用户管理, 桌位排位">桌位排位</MenuItem>
-            <MenuItem name="用户管理, 活动预订">活动预订</MenuItem>
+            <MenuItem name="用户管理, 桌位排位" to="/user/book/remind">桌位排位</MenuItem>
+            <MenuItem name="用户管理, 活动预订" to="/user/book/activity">活动预订</MenuItem>
           </Submenu>
           <Submenu name="商家管理">
             <template slot="title">
@@ -43,11 +43,7 @@
             <Icon type="ios-arrow-down"></Icon>
           </a>
           <DropdownMenu slot="list">
-            <DropdownItem>驴打滚</DropdownItem>
-            <DropdownItem>炸酱面</DropdownItem>
-            <DropdownItem>豆汁儿</DropdownItem>
-            <DropdownItem>冰糖葫芦</DropdownItem>
-            <DropdownItem>北京烤鸭</DropdownItem>
+            <DropdownItem>退出登录</DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </Header>
@@ -89,13 +85,13 @@ export default {
 }
 </script>
 <style  scoped>
-    .login-frame {
-        height: 117px;
-        line-height: 117px;
-        padding-left: 30px;
-        color:#fff;
-        font-size: 21px;
-        font-weight: bold;
-    }
+.login-frame {
+  height: 117px;
+  line-height: 117px;
+  padding-left: 30px;
+  color:#fff;
+  font-size: 21px;
+  font-weight: bold;
+}
 </style>
 
