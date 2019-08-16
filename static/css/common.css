@@ -31,6 +31,7 @@ body>div{
 }
 .ivu-menu-dark.ivu-menu-vertical .ivu-menu-submenu .ivu-menu-item-active, .ivu-menu-dark.ivu-menu-vertical .ivu-menu-submenu .ivu-menu-item-active:hover {
   background-color:#172336 !important;
+  padding-left: 65px !important;
 }
 .ivu-menu-dark.ivu-menu-vertical .ivu-menu-submenu .ivu-menu-item-active::after{
   content: '';
@@ -52,4 +53,10 @@ body>div{
 }
 .ivu-menu-dark {
   background:none !important;
+}
+.ivu-menu-dark.ivu-menu-vertical .ivu-menu-item, .ivu-menu-dark.ivu-menu-vertical .ivu-menu-submenu-title{
+  color:rgba(255, 255, 255, .5);
+}
+.ivu-menu-dark.ivu-menu-vertical .ivu-menu-item{
+  padding-left: 65px !important;
 }

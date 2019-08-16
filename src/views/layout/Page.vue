@@ -11,7 +11,7 @@
               <Icon type="md-person" />
               用户管理
             </template>
-            <MenuItem name="用户管理,账号管理" to="/user/account">账号管理</MenuItem>
+            <MenuItem name="用户管理,账号管理" to="/user/account" replace="">账号管理</MenuItem>
             <MenuItem name="用户管理, 桌位预订" to="/user/book/place">桌位预订</MenuItem>
             <MenuItem name="用户管理, 桌位排位" to="/user/book/remind">桌位排位</MenuItem>
             <MenuItem name="用户管理, 活动预订" to="/user/book/activity">活动预订</MenuItem>
@@ -64,7 +64,8 @@ export default {
   data() {
     return {
         menuItemText: '账号管理',
-        menuText: '用户管理'
+        menuText: '用户管理',
+        replace: true
     }
   },
   methods: {

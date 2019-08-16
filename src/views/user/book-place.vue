@@ -1,15 +1,15 @@
 <template>
   <div>
     <div class="header-bar">
-        <Input v-model="value" placeholder="输入用户手机号/酒吧名称" search style="width:200px;"/>
+        <Input v-model="query.queryStr" placeholder="输入用户手机号/酒吧名称" search style="width:200px;"/>
         <span class="seach-lable">预定日期：</span>
         <DatePicker type="daterange" placement="bottom-end" placeholder="请选择预定日期" style="width: 200px"></DatePicker>
         <span class="seach-lable">是否到店：</span>
-        <Select style="width:100px">
+        <Select style="width:100px" v-model="query.arriveStatus">
           <Option v-for="item in arriveStatusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
         </Select>
         <span class="seach-lable">预定状态：</span>
-        <Select style="width:100px">
+        <Select style="width:100px"  v-model="query.status">
           <Option v-for="item in statusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
         </Select>
     </div>
@@ -20,10 +20,21 @@
   </div>
 </template>
 <script>
+import {get_place_list} from "@/api/user"
 export default {
   data () {
     return {
-      value: '',
+       query: {
+        pageSize: 10,
+        pageNum: 1,
+        queryStr: '',//酒吧名称或用户手机号
+        beginTime: '',//注册日期开始时间
+        endTime: '',//注册日期结束时间
+        arriveStatus: -1,//是否到店（-1全部  0已到店  2未到店）
+        status: -1,//预定状态（-1全部  0自己取消 1超时取消 2正常到店 3超时到店）
+      },
+      startRow: 1, // 当前页面
+      list: [],//列表
       arriveStatusList: [//是否到店
         {
           label: '全部',
@@ -104,6 +115,16 @@ export default {
     }
   },
   methods: {
+    getPlacelist () {
+      get_place_list(this.query).then(res => {
+        console.log(res)
+      }).catch(error => {
+        
+      })
+    }
+  },
+  mounted () {
+    this.getPlacelist()
   },
   beforeCreate () {
   },

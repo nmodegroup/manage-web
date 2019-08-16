@@ -1,9 +1,8 @@
 <template>
   <div>
     <div class="header-bar">
-        <Input v-model="value" placeholder="输入用户昵称/手机号搜" search style="width:200px;"/>
-          <span class="seach-lable">注册日期：</span><DatePicker type="daterange" placement="bottom-end" placeholder="请选择注册日期" style="width: 200px"></DatePicker>
-          <span class="seach-lable">注册日期：</span> <DatePicker type="date" placeholder="请选择注册日期" style="width: 200px"></DatePicker>
+      <Input v-model="query.queryStr" placeholder="输入用户昵称/手机号搜" search style="width:200px;"/>
+      <span class="seach-lable">注册日期：</span><DatePicker type="daterange" placement="bottom-end" placeholder="请选择注册日期" style="width: 200px"></DatePicker>
     </div>
     <Table stripe :columns="columns1" :data="data1"></Table>
     <div style="padding-top:30px;text-align:center;">
@@ -12,10 +11,19 @@
   </div>
 </template>
 <script>
+import {get_account_list} from "@/api/user"
 export default {
   data () {
     return {
-      value: '',
+      query: {
+        pageSize: 10,
+        pageNum: 1,
+        queryStr: '',//用户 昵称或手机号
+        beginTime: '',//注册日期开始时间
+        endTime: ''//注册日期结束时间
+      },
+      startRow: 1, // 当前页面
+      list: [],//用户账号列表
       columns1: [
           {
               title: '头像',
@@ -127,6 +135,16 @@ export default {
     }
   },
   methods: {
+    getAccountList() {
+      get_account_list(this.query).then(res => {
+        console.log(res)
+      }).catch(error => {
+
+      })
+    }
+  },
+  mounted () {
+    this.getAccountList()
   },
   beforeCreate () {
   },

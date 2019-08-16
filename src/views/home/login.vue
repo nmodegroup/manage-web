@@ -17,7 +17,7 @@
   </div>
 </template>
 <script>
-import {login} from "../../api/login";
+import {login} from "@/api/login";
 export default {
   data () {
     return {
@@ -35,7 +35,8 @@ export default {
         this.$Message.info('请输入密码')
       } else {
         login(this.form).then(res => {
-        
+          localStorage.setItem("token", res.data)
+          this.$goto('UserAccount')
         })
       }
     }

@@ -1,4 +1,4 @@
-import request from '../libs/service'
+import request from '@/libs/service'
 import qs from 'qs'
  export function login (data) {
    return request({
