@@ -1,10 +1,10 @@
-import Vue from 'vue';
+import Vue from 'vue'
+import App from './App'
+import router from './router'
 import iView from 'iview';
-import Routers from './router';
-import App from './app.vue';
 import 'iview/dist/styles/iview.css';
-import './styles/common.css'
-Vue.use(iView);
+import '../static/css/common.css'
+Vue.use(iView)
 // 路由跳转公用方法
 Vue.prototype.$goto = function (name, query, params) {
   let last = arguments[arguments.length - 1]
@@ -17,9 +17,10 @@ Vue.prototype.$goto = function (name, query, params) {
     })
   }, delay)
 }
+/* eslint-disable no-new */
 new Vue({
-    el: '#app',
-    router: Routers,
-    components: { App },
-    template: '<App/>'
-});
+  el: '#app',
+  router,
+  components: { App },
+  template: '<App/>'
+})
