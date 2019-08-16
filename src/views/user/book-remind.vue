@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="header-bar">
-        <Input v-model="value" placeholder="输入用户手机号/酒吧名称" search style="width:200px;"/>
+        <Input v-model="query.queryStr" placeholder="输入用户手机号/酒吧名称" search style="width:200px;"/>
         <span class="seach-lable">排位日期：</span>
         <DatePicker type="daterange" placement="bottom-end" placeholder="请选择排位日期" style="width: 200px"></DatePicker>
         <span class="seach-lable">排位状态：</span>
-        <Select style="width:100px">
+        <Select style="width:100px" v-model="query.status">
           <Option v-for="item in statusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
         </Select>
     </div>
@@ -16,10 +16,20 @@
   </div>
 </template>
 <script>
+import {get_remind_list} from "@/api/user"
 export default {
   data () {
     return {
-      value: '',
+      query: {
+        pageSize: 10,
+        pageNum: 1,
+        queryStr: '',//酒吧名称或用户手机号
+        beginTime: '',//注册日期开始时间
+        endTime: '',//注册日期结束时间
+        status: -1,//排位状态（-1全部  0自己取消  1系统取消）
+      },
+      startRow: 1, // 当前页面
+      list: [],//列表
       statusList: [//排位状态
         {
           label: '全部',
@@ -66,6 +76,16 @@ export default {
     }
   },
   methods: {
+    getRemindList () {
+      get_remind_list(this.query).then(res => {
+        console.log(res)
+      }).catch(error => {
+
+      })
+    }
+  },
+  mounted () {
+    this.getRemindList()
   },
   beforeCreate () {
   },

@@ -24,7 +24,7 @@ import {get_place_list} from "@/api/user"
 export default {
   data () {
     return {
-       query: {
+      query: {
         pageSize: 10,
         pageNum: 1,
         queryStr: '',//酒吧名称或用户手机号
