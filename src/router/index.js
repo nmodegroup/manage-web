@@ -12,6 +12,10 @@ let pages = [
     {path: '/user/book/place', meta: {title: '桌位预订'}, component: resolve => { require(['@/views/user/book-place'], resolve) }},
     {path: '/user/book/remind', meta: {title: '桌位排位'}, component: resolve => { require(['@/views/user/book-remind'], resolve) }},
     {path: '/user/book/activity', meta: {title: '活动预订'}, component: resolve => { require(['@/views/user/book-activity'], resolve) }},
+    {path: '/mch/account', meta: {title: '商家账号管理'}, component: resolve => { require(['@/views/mch/account'], resolve) }},
+    {path: '/mch/auth', meta: {title: '商家认证'}, component: resolve => { require(['@/views/mch/auth'], resolve) }},
+    {path: '/mch/activity', meta: {title: '活动管理'}, component: resolve => { require(['@/views/mch/activity'], resolve) }},
+    {path: '/mch/place', meta: {title: '桌位管理'}, component: resolve => { require(['@/views/mch/place'], resolve) }},
     {path: '/', redirect: '/user/account'}
   ]
 // 页面

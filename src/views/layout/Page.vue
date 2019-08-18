@@ -11,7 +11,7 @@
               <Icon type="md-person" />
               用户管理
             </template>
-            <MenuItem name="用户管理,账号管理" to="/user/account" replace="">账号管理</MenuItem>
+            <MenuItem name="用户管理,账号管理" to="/user/account">账号管理</MenuItem>
             <MenuItem name="用户管理, 桌位预订" to="/user/book/place">桌位预订</MenuItem>
             <MenuItem name="用户管理, 桌位排位" to="/user/book/remind">桌位排位</MenuItem>
             <MenuItem name="用户管理, 活动预订" to="/user/book/activity">活动预订</MenuItem>
@@ -21,9 +21,9 @@
               <Icon type="ios-keypad"></Icon>
               商家管理
             </template>
-            <MenuItem name="商家管理, 商家账号管理">商家账号管理</MenuItem>
-            <MenuItem name="商家管理, 商家认证">商家认证</MenuItem>
-            <MenuItem name="商家管理, 活动管理">活动管理</MenuItem>
+            <MenuItem name="商家管理, 商家账号管理" to="/mch/account">商家账号管理</MenuItem>
+            <MenuItem name="商家管理, 商家认证" to="/mch/auth">商家认证</MenuItem>
+            <MenuItem name="商家管理, 活动管理" to="/mch/activity">活动管理</MenuItem>
             <MenuItem name="商家管理, 桌位管理">桌位管理</MenuItem>
             </Submenu>
           <Submenu name="平台管理">

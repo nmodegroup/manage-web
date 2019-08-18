@@ -5,7 +5,7 @@
         <span class="seach-lable">预定日期：</span>
         <DatePicker type="daterange" placement="bottom-end" placeholder="请选择预定日期" style="width: 200px"></DatePicker>
     </div>
-    <Table stripe :columns="columns1" :data="data1"></Table>
+    <Table stripe :columns="columns1" :data="list"></Table>
     <div style="padding-top:30px;text-align:center;">
       <Page :total="100" show-total  style=""/>
     </div>
@@ -40,11 +40,15 @@ export default {
           },
           {
             title: '预定日期',
-            key: 'createTime'
+            key: 'appointDate'
           },
           {
             title: '活动时间',
-            keyL: 'remindPhone'
+            width:300,
+            render: (h,params) => {
+              let text = params.row.beginTime + ' ~ ' + params.row.endTime
+              return h('div', text)
+            }
           },
           {
             title: '主题活动',
@@ -59,7 +63,7 @@ export default {
   methods: {
     getActivityLsit () {
       get_activity_list(this.query).then(res => {
-
+        this.list = res.data.list
       }).catch(error => {
 
       })

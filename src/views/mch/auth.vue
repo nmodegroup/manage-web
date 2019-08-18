@@ -2,10 +2,10 @@
   <div>
     <div class="header-bar">
       <Input v-model="query.queryStr" placeholder="输入商家名称/手机号搜" search style="width:200px;"/>
-      <span class="seach-lable">注册日期：</span><DatePicker type="daterange" placement="bottom-end" placeholder="请选择注册日期" style="width: 200px"></DatePicker>
-      <span class="seach-lable">账号状态：</span>
-      <Select style="width:100px" v-model="query.userStatus">
-        <Option v-for="item in userStatusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+      <span class="seach-lable">认证日期：</span><DatePicker type="daterange" placement="bottom-end" placeholder="请选择注册日期" style="width: 200px"></DatePicker>
+      <span class="seach-lable">审核状态：</span>
+      <Select style="width:100px" v-model="query.auditStatus">
+        <Option v-for="item in auditStatusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
       </Select>
     </div>
     <Table stripe :columns="columns1" :data="data1"></Table>
@@ -15,7 +15,7 @@
   </div>
 </template>
 <script>
-import {get_account_list, on_switch} from "@/api/mch"
+import {get_auth_list} from "@/api/mch"
 export default {
   data () {
     return {
@@ -23,30 +23,30 @@ export default {
         pageSize: 10,
         pageNum: 1,
         queryStr: '',//商家名称或手机号
-        userStatus: -1,//账号状态(-1全部  0正常 1已禁用)
-        beginTime: '',//注册日期开始时间
-        endTime: ''//注册日期结束时间
+        auditStatus: -1,//审核状态(-1全部  0待审核 1审核通过 2审核未通过)
+        beginTime: '',//认证日期开始时间
+        endTime: ''//认证日期结束时间
       },
       startRow: 1, // 当前页面
-      list: [],//用户账号列表
-      userStatusList: [
+      list: [],//认证列表
+      auditStatusList: [
         {
           label: '全部',
           value: -1
         },
         {
-          label: '正常',
+          label: '待审核',
           value: 0
         },
         {
-          label: '已禁用',
+          label: '审核通过',
           value: 1
+        },
+        {
+          label: '审核未通过',
+          value: 2
         }],
       columns1: [
-          {
-              title: '头像',
-              key: 'portrait'
-          },
           {
               title: '微信昵称',
               key: 'nickName'
@@ -60,70 +60,73 @@ export default {
               key: 'createTime'
           },
           {
+              title: '申请认证日期',
+              key: 'submitTime'
+          },
+          {
               title: '商家名称',
-              key: 'createTime'
+              key: 'name'
           },
           {
               title: '所在区域',
-              key: 'tableAppointNum'
+              key: 'area'
           },
           {
-              title: '详细地址',
-              key: 'tableQueenNum'
+            title: '详细地址',
+            key: 'address'
           },
           {
             title: '所属类型',
-            key: 'activityAppointNum'
+            key: 'type'
           },
           {
-            title: '账号状态',
-            key: 'activityAppointNum'
+            title: 'logo',
+            key: 'logo'
+          },
+          {
+            title: '人均消费',
+            key: 'price'
+          },
+          {
+            title: '店铺封面',
+            key: 'price'
+          },
+          {
+            title: '调酒师信息',
+            
+          },
+          {
+            title: '调酒师照片',
+            
+          },
+          {
+            title: '店铺简介',
+            key: 'desc'
+          },
+          {
+            title: '审核状态',
+            key: 'auditStatus'
           },
           {
               title: '操作',
-              width: 400,
               render: (h,params) => {
                 return h('div', [
                 h('a', {
-                  style: {
-                    "margin-right": "5px"
-                  },
                   props: {
                     href: "javascript:void(0)"
                   },
                   on: {
                     click: () => {
                       this.$Modal.confirm({
-                        title: '禁用提示',
-                        content: '确认禁用该商家账号吗？禁用后账号将无法使用！',
+                        title: '审核确认',
+                        content: '是否已确认商家信息无误，审核通过后将可以开启预约！',
                         onOk: () => {
                           
                         }
                       });
 
                     }
-                  }}, '禁用账号'),
-                h('a', {
-                  style: {
-                    "margin-right": "5px"
-                  },
-                  props: {
-                    href: "javascript:void(0)"
-                  }}, '认证信息'),
-                h('a', {
-                  style: {
-                    "margin-right": "5px"
-                  },
-                  props: {
-                    href: "javascript:void(0)"
-                  }}, '活动信息'),
-                h('a', {
-                  style: {
-                    "margin-right": "5px"
-                  },
-                  props: {
-                    href: "javascript:void(0)"
-                  }}, '桌位信息'),
+                  }}, '审核通过')
                 ])
               }
           },
@@ -165,8 +168,8 @@ export default {
     }
   },
   methods: {
-    getAccountList() {
-      get_account_list(this.query).then(res => {
+    getAuthList() {
+      get_auth_list(this.query).then(res => {
         console.log(res)
       }).catch(error => {
 
@@ -174,7 +177,7 @@ export default {
     }
   },
   mounted () {
-    this.getAccountList()
+    this.getAuthList()
   },
   beforeCreate () {
   },
