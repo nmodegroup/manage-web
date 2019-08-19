@@ -7,7 +7,9 @@
       <Select style="width:100px" v-model="query.auditStatus">
         <Option v-for="item in auditStatusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
       </Select>
-      <span class="seach-lable">活动执行状态：</span>
+    </div>
+    <div class="header-bar">
+      <span>活动执行状态：</span>
       <Select style="width:100px" v-model="query.execStatus">
         <Option v-for="item in execStatusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
       </Select>
@@ -15,10 +17,14 @@
       <Select style="width:100px" v-model="query.shelvesStatus">
         <Option v-for="item in shelvesStatusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
       </Select>
+      <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
+      <Button  @click="onReset">重置</Button>
     </div>
-    <Table stripe :columns="columns1" :data="data1"></Table>
+    <div class="list-content">
+      <Table  :columns="columns1" :data="list" height="450"></Table>
+    </div>
     <div style="padding-top:30px;text-align:center;">
-      <Page :total="100" show-total  style=""/>
+      <Page :total="dataCount" border show-total :current="startRow" :page-size="query.pageSize" @on-change="changepage"/>
     </div>
   </div>
 </template>
@@ -37,6 +43,7 @@ export default {
         beginTime: '',//认证日期开始时间
         endTime: ''//认证日期结束时间
       },
+      dataCount:0,//总条数
       startRow: 1, // 当前页面
       list: [],//活动列表
       auditStatusList: [
@@ -91,145 +98,223 @@ export default {
       ],
       columns1: [
           {
-              title: '微信昵称',
-              key: 'nickName'
+            title: '微信昵称',
+            key: 'nickName',
+            width:100
           },
           {
-              title: '手机号',
-              key: 'phone'
+            title: '手机号',
+            key: 'phone',
+            width:130
           },
           {
-              title: '商家名称',
-              key: 'createTime'
+            title: '商家名称',
+            key: 'name',
+            width:130
           },
           {
-              title: '活动主题',
-              key: 'createTime'
+            title: '活动主题',
+            key: 'theme',
+            width:130
           },
           {
-              title: '活动时间',
-              key: 'tableAppointNum'
+            title: '活动时间',
+            width:300,
+            render: (h,params) => {
+              let text = params.row.beginTime + ' ~ ' + params.row.endTime
+              return h('div', text)
+            }
           },
           {
-              title: '活动区域',
-              key: 'tableQueenNum'
+            title: '活动区域',
+            key: 'area',
+            width:120
           },
           {
             title: '详细地址',
-            key: 'activityAppointNum'
+            key: 'address',
+            width:200
           },
           {
             title: '嘉宾信息',
-            key: 'activityAppointNum'
+            key: 'guest',
+            width:130
           },
           {
             title: '开放预定名额',
-            
+            key: 'quota',
+            width:120
           },
           {
             title: '活动宣传图',
-            
+            width:130,
+            render: (h,params) => {
+              return h('img',{
+                attrs: {
+                  src: params.row.post,
+                  style: 'width:100%;padding:5px;'
+                }
+              })
+            }
           },
           {
             title: '审核状态',
-            
+            width:100,
+            render: (h,params) => {
+              let  text = ''
+              switch (params.row.auditStatus) {
+                case 0:
+                  text = '待审核'
+                  break
+                case 1:
+                  text = '审核通过'
+                  break
+                case 2:
+                  text = `审核未通过(${params.row.reason})`
+                  break
+              }
+              return h('div', text)
+            }
           },
           {
             title: '活动状态',
-            
+            render: (h,params) => {
+              let  text = ''
+              console.log()
+              switch (params.row.execStatus) {
+                case 0:
+                  text = '待执行'
+                  break
+                case 1:
+                  text = '执行中'
+                  break
+                case 2:
+                  text = '已结束'
+                  break
+              }
+              return h('div', text)
+            }
           },
           {
             title: '是否下架',
-            
-          },
-          {
-              title: '操作',
-              render: (h,params) => {
-                return h('div', [
-                h('a', {
-                  props: {
-                    href: "javascript:void(0)"
-                  },
-                  on: {
-                    click: () => {
-                      this.$Modal.confirm({
-                        title: '审核确认',
-                        content: '是否已确认商活动信息无误，审核通过后将可以开启预约！',
-                        onOk: () => {
-                          
-                        }
-                      });
-
-                    }
-                  }}, '审核通过'),
-                  h('a', {
-                  props: {
-                    href: "javascript:void(0)"
-                  },
-                  on: {
-                    click: () => {
-                      this.$Modal.confirm({
-                        title: '审核确认',
-                        content: '是否已确认商家信息无误，审核通过后将可以开启预约！',
-                        onOk: () => {
-                          
-                        }
-                      });
-
-                    }
-                  }}, '审核不通过'),
-                  h('a', {
-                  props: {
-                    href: "javascript:void(0)"
-                  },
-                  on: {
-                    click: () => {
-                      this.$Modal.confirm({
-                        title: '下架确认',
-                        content: '是否确认强制将活动下架？请确认已和商家联系！',
-                        onOk: () => {
-                          
-                        }
-                      });
-
-                    }
-                  }}, '强制下架'),
-                ])
+            render: (h,params) => {
+              let  text = ''
+              switch (params.row.shelvesStatus) {
+                case 0:
+                  text = '已上架'
+                  break
+                case 1:
+                  text = '已下架'
+                  break
               }
-          },
-      ],
-      data1: [
-          {
-            nickName: '乌拉拉',
-            phone: 13652145214,
-            createTime: '2019-04-23',
-            tableAppointNum: 324,
-            tableQueenNum: 23,
-            activityAppointNum: 24
+              return h('div', text)
+            }
           },
           {
-            nickName: '乌拉拉',
-            phone: 13652145214,
-            createTime: '2019-04-23',
-            tableAppointNum: 324,
-            tableQueenNum: 23,
-            activityAppointNum: 24
-          },
-           {
-            nickName: '乌拉拉',
-            phone: 13652145214,
-            createTime: '2019-04-23',
-            tableAppointNum: 324,
-            tableQueenNum: 23,
-            activityAppointNum: 24
-          },
-          {
-            nickName: '乌拉拉',
-            phone: 13652145214,
-            createTime: '2019-04-23',
-            tableAppointNum: 324,
-            tableQueenNum: 23,
-            activityAppointNum: 24
+            title: '操作',
+            fixed: 'right',
+            width:210,
+            render: (h,params) => {
+              return h('div', [
+              h('a', {
+                props: {
+                  href: "javascript:void(0)"
+                },
+                style: {
+                  "margin-right": "5px",
+                  'color': params.row.auditStatus == 0 ? '' : 'gray'
+                },
+                on: {
+                  click: () => {
+                    if (params.row.auditStatus != 0) {
+                      return
+                    }
+                    this.$Modal.confirm({
+                      title: '审核确认',
+                      content: '是否已确认商活动信息无误，审核通过后将可以开启预约！',
+                      onOk: () => {
+                        let data = {
+                          type: 1,
+                          id: params.row.id
+                        }
+                        this.$Message.info('审核已通过')
+                        this.merchantActivityAudit(data)
+                      }
+                    });
+
+                  }
+                }}, '审核通过'),
+                h('a', {
+                props: {
+                  href: "javascript:void(0)"
+                },
+                style: {
+                "margin-right": "5px",
+                'color': params.row.auditStatus == 0 ? '' : 'gray'
+                },
+                on: {
+                  click: () => {
+                    if (params.row.auditStatus != 0) {
+                      return
+                    }
+                    this.$Modal.confirm({
+                      render: (h) => {
+                        return h('Input', {
+                            props: {
+                              title: '不通过原因',
+                              value: this.reason,
+                              autofocus: true,
+                              placeholder: '请填写审核不通过原因，最多填写25个字',
+                              type: 'textarea',
+                              maxlength: 25
+                            },
+                            on: {
+                              input: (val) => this.reason = val
+                            }
+                        })
+                      },
+                      onOk: () => {
+                        const data = {
+                          type:2,
+                          reason: this.reason,
+                          id: params.row.id
+                        }
+                         this.$Message.info('审核已拒绝')
+                        this.merchantActivityAudit(data)
+                      },
+                      onCancel: () => this.reason = '' // 取消按钮清空不通过原因
+                    });
+                  }
+                }}, '审核不通过'),
+                h('a', {
+                props: {
+                  href: "javascript:void(0)"
+                },
+                style: {
+                  "margin-right": "5px",
+                  'color': params.row.auditStatus != 1 ? 'gray' : ''
+                },
+                on: {
+                  click: () => {
+                    if (params.row.auditStatus != 1) {
+                      return
+                    }
+                    this.$Modal.confirm({
+                      title: '下架确认',
+                      content: '是否确认强制将活动下架？请确认已和商家联系！',
+                      onOk: () => {
+                        let data = {
+                          type: 3,
+                          id: params.row.id
+                        }
+                        this.$Message.info('已强制下架')
+                        this.merchantActivityAudit(data)
+                      }
+                    })
+                  }
+                }}, '强制下架'),
+              ])
+            }
           },
       ]
     }
@@ -237,11 +322,45 @@ export default {
   methods: {
     getActivityList() {
       get_activity_list(this.query).then(res => {
-        console.log(res)
+        this.list = res.data.list
+        this.dataCount = res.data.totalSize
       }).catch(error => {
 
       })
-    }
+    },
+    //活动审核
+    merchantActivityAudit (data) {
+      merchant_activity_audit(data).then(res => {
+        this.query.pageNum = 1
+        this.getActivityList()
+      }).catch(error => {
+
+      })
+    },
+     // 页码改变
+    changepage(index) {
+      this.query.pageNum = index;
+      this.startRow =  index
+      this.getActivityList()
+    },
+    // 搜索按钮事件
+    onSerach() {
+      this.query.pageNum = 1
+      this.startRow = 1
+      this.getActivityList()
+    },
+    // 重置按钮事件
+    onReset() {
+      this.query.queryStr = ''
+      this.query.beginTime = ''
+      this.query.endTime = ''
+      this.query.auditStatus = -1
+      this.query.execStatus = -1
+      this.query.shelvesStatus = -1
+      this.query.pageNum = 1
+      this.startRow = 1
+      this.getActivityList()
+    },
   },
   mounted () {
     this.getActivityList()

@@ -16,6 +16,7 @@ let pages = [
     {path: '/mch/auth', meta: {title: '商家认证'}, component: resolve => { require(['@/views/mch/auth'], resolve) }},
     {path: '/mch/activity', meta: {title: '活动管理'}, component: resolve => { require(['@/views/mch/activity'], resolve) }},
     {path: '/mch/place', meta: {title: '桌位管理'}, component: resolve => { require(['@/views/mch/place'], resolve) }},
+    {path: '/home/index', meta: {title: '首页管理'}, component: resolve => { require(['@/views/home/index'], resolve) }},
     {path: '/', redirect: '/user/account'}
   ]
 // 页面

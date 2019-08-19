@@ -14,9 +14,15 @@ body>div{
   height: 100%;
 }
 .header-bar {
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 .seach-lable {
+  padding-left: 20px;
+}
+.list-content {
+  padding-top: 20px;
+}
+.btn-bar {
   padding-left: 20px;
 }
 /* 修改iview样式 */

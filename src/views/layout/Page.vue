@@ -24,14 +24,14 @@
             <MenuItem name="商家管理, 商家账号管理" to="/mch/account">商家账号管理</MenuItem>
             <MenuItem name="商家管理, 商家认证" to="/mch/auth">商家认证</MenuItem>
             <MenuItem name="商家管理, 活动管理" to="/mch/activity">活动管理</MenuItem>
-            <MenuItem name="商家管理, 桌位管理">桌位管理</MenuItem>
+            <MenuItem name="商家管理, 桌位管理" to="/mch/place">桌位管理</MenuItem>
             </Submenu>
           <Submenu name="平台管理">
             <template slot="title">
               <Icon type="md-settings" />
               平台管理
             </template>
-            <MenuItem name="平台管理, 首页管理">首页管理</MenuItem>
+            <MenuItem name="平台管理, 首页管理" to="/home/index">首页管理</MenuItem>
           </Submenu>
         </Menu>
     </Sider>
