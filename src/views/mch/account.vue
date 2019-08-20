@@ -2,16 +2,24 @@
   <div>
     <div class="header-bar">
       <Input v-model="query.queryStr" placeholder="输入商家名称/手机号搜" search style="width:200px;"/>
-      <span class="seach-lable">注册日期：</span><DatePicker type="daterange" placement="bottom-end" placeholder="请选择注册日期" style="width: 200px"></DatePicker>
+      <span class="seach-lable">注册日期：</span><DatePicker type="daterange" placement="bottom-end"
+        placeholder="请选择注册日期" style="width: 200px"
+        v-model="timeArr" @on-clear='clear_change' @on-change='date_change'></DatePicker>
       <span class="seach-lable">账号状态：</span>
       <Select style="width:100px" v-model="query.userStatus">
         <Option v-for="item in userStatusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
       </Select>
+      <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
+      <Button  @click="onReset">重置</Button>
     </div>
-    <Table stripe :columns="columns1" :data="data1"></Table>
+    <Table stripe :columns="columns1" :data="list"></Table>
     <div style="padding-top:30px;text-align:center;">
-      <Page :total="100" show-total  style=""/>
+      <Page :total="dataCount" border show-total :current="startRow" :page-size="query.pageSize" @on-change="changepage"/>
     </div>
+    <Modal :title="imgTitile" v-model="visible">
+      <img :src="imgSrc" v-if="visible" style="width: 100%">
+      <div slot="footer"></div>
+    </Modal>
   </div>
 </template>
 <script>
@@ -27,6 +35,10 @@ export default {
         beginTime: '',//注册日期开始时间
         endTime: ''//注册日期结束时间
       },
+      timeArr: [],
+      imgTitile: '',//大图标题
+      visible:  false,//显示查看大图弹框
+      dataCount:0,//总条数
       startRow: 1, // 当前页面
       list: [],//用户账号列表
       userStatusList: [
@@ -44,45 +56,95 @@ export default {
         }],
       columns1: [
           {
-              title: '头像',
-              key: 'portrait'
+            title: '头像',
+            render: (h,params) => {
+              return h('img',{
+                attrs: {
+                  src: params.row.portrait,
+                  style: 'width:100%;padding:5px;'
+                },
+                on: {
+                  click: () => {
+                    this.lookBigImg(params.row.portrait, params.row.nickName)
+                  }
+                }
+              })
+            }
+          },  
+          {
+            title: '微信昵称',
+            key: 'nickName'
           },
           {
-              title: '微信昵称',
-              key: 'nickName'
+            title: '手机号',
+            key: 'phone'
           },
           {
-              title: '手机号',
-              key: 'phone'
+            title: '注册日期',
+            key: 'registDate'
           },
           {
-              title: '注册日期',
-              key: 'createTime'
+            title: '商家名称',
+            key: 'name'
           },
           {
-              title: '商家名称',
-              key: 'createTime'
+            title: '所在区域',
+            key: 'area'
           },
           {
-              title: '所在区域',
-              key: 'tableAppointNum'
-          },
-          {
-              title: '详细地址',
-              key: 'tableQueenNum'
+            title: '详细地址',
+            key: 'address'
           },
           {
             title: '所属类型',
-            key: 'activityAppointNum'
+            render: (h,params) => {
+              let  text = ''
+              switch (params.row.type) {
+                case 0:
+                  text = '其他'
+                  break
+                case 1:
+                  text = '餐吧'
+                  break
+                case 2:
+                  text = '清吧'
+                  break
+              }
+              return h('div', text)
+            }
           },
           {
             title: '账号状态',
-            key: 'activityAppointNum'
+            render: (h,params) => {
+              let  text = ''
+              switch (params.row.userStatus) {
+                case 0:
+                  text = '已启用'
+                  break
+                case 1:
+                  text = '已禁用'
+                  break
+              }
+              return h('div', text)
+            }
           },
           {
               title: '操作',
-              width: 400,
+              width: 250,
               render: (h,params) => {
+                let btntext = ''
+                let title = ''
+                let content = ''
+                let userStatus = ''
+                if (params.row.userStatus == 1) { //根据状态显示禁用账号还是启用账号
+                  btntext = '启用账号'
+                  title = '启用确认'
+                  content = '确认启用该商家账号吗？启用后账号将允许登录！'
+                } else {
+                  btntext = '禁用账号'
+                  title = '禁用确认'
+                  content = '确认禁用该商家账号吗？禁用后账号将无法使用！'
+                }
                 return h('div', [
                 h('a', {
                   style: {
@@ -94,72 +156,65 @@ export default {
                   on: {
                     click: () => {
                       this.$Modal.confirm({
-                        title: '禁用提示',
-                        content: '确认禁用该商家账号吗？禁用后账号将无法使用！',
+                        title: title,
+                        content: content,
                         onOk: () => {
-                          
+                          this.onSwitch()
                         }
                       });
 
                     }
-                  }}, '禁用账号'),
+                  }}, btntext),
+                h('a', {
+                        style: {
+                          "margin-right": "5px"
+                        },
+                        props: {
+                          href: "javascript:void(0)"
+                        },
+                        on: {
+                          click: () => {
+                            this.$goto('MchAuth', '', {id: params.row.id})
+                            sessionStorage.setItem('activeName', '商家管理, 商家认证')
+                            sessionStorage.setItem('menuItemText', '商家认证')
+                            this.$emit('listenToChildEvent')
+                          }
+                        }
+                      }, '认证信息'),
                 h('a', {
                   style: {
                     "margin-right": "5px"
                   },
                   props: {
                     href: "javascript:void(0)"
-                  }}, '认证信息'),
+                  },
+                  on: {
+                    click: () => {
+                      this.$goto('MchActivity', '', {id: params.row.id})
+                      sessionStorage.setItem('activeName', '商家管理, 活动管理')
+                      sessionStorage.setItem('menuItemText', '活动管理')
+                      this.$emit('listenToChildEvent')
+                    }
+                  }
+                  }, '活动信息'),
                 h('a', {
                   style: {
                     "margin-right": "5px"
                   },
                   props: {
                     href: "javascript:void(0)"
-                  }}, '活动信息'),
-                h('a', {
-                  style: {
-                    "margin-right": "5px"
                   },
-                  props: {
-                    href: "javascript:void(0)"
-                  }}, '桌位信息'),
+                   on: {
+                    click: () => {
+                      this.$goto('MchPlace', '', {id: params.row.id})
+                      sessionStorage.setItem('activeName', '商家管理, 桌位管理')
+                      sessionStorage.setItem('menuItemText', '桌位管理')
+                      this.$emit('listenToChildEvent')
+                    }
+                  }
+                  }, '桌位信息'),
                 ])
               }
-          },
-      ],
-      data1: [
-          {
-            nickName: '乌拉拉',
-            phone: 13652145214,
-            createTime: '2019-04-23',
-            tableAppointNum: 324,
-            tableQueenNum: 23,
-            activityAppointNum: 24
-          },
-          {
-            nickName: '乌拉拉',
-            phone: 13652145214,
-            createTime: '2019-04-23',
-            tableAppointNum: 324,
-            tableQueenNum: 23,
-            activityAppointNum: 24
-          },
-           {
-            nickName: '乌拉拉',
-            phone: 13652145214,
-            createTime: '2019-04-23',
-            tableAppointNum: 324,
-            tableQueenNum: 23,
-            activityAppointNum: 24
-          },
-          {
-            nickName: '乌拉拉',
-            phone: 13652145214,
-            createTime: '2019-04-23',
-            tableAppointNum: 324,
-            tableQueenNum: 23,
-            activityAppointNum: 24
           },
       ]
     }
@@ -167,10 +222,58 @@ export default {
   methods: {
     getAccountList() {
       get_account_list(this.query).then(res => {
-        console.log(res)
+        this.list = res.data.list
+        this.dataCount = res.data.totalSize
       }).catch(error => {
 
       })
+    },
+    //清空日历
+    clear_change() {
+      this.query.beginDate = '';
+      this.query.endDate = '';
+    },
+    //日历改变
+    date_change(date) {
+      this.query.beginDate = date[0]
+      this.query.endDate = date[1]
+    },
+    //查看大图
+    lookBigImg (imgUrl, title) {
+      this.imgSrc = imgUrl;
+      this.imgTitile = title;
+      this.visible = true;
+    },
+    //禁用账号启用账号切换
+    onSwitch () {
+      on_switch().then(res => {
+        this.query.pageNum = 1
+        this.getAccountList()
+      }).catch(error => {
+
+      })
+    },
+    // 页码改变
+    changepage(index) {
+      this.query.pageNum = index;
+      this.startRow =  index
+      this.getAccountList()
+    },
+    // 搜索按钮事件
+    onSerach() {
+      this.query.pageNum = 1
+      this.startRow = 1
+      this.getAccountList()
+    },
+    // 重置按钮事件
+    onReset() {
+      this.query.queryStr = ''
+      this.query.beginTime = ''
+      this.query.endTime = ''
+      this.query.userStatus = -1
+      this.query.pageNum = 1
+      this.startRow = 1
+      this.getAccountList()
     }
   },
   mounted () {

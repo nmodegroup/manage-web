@@ -4,10 +4,10 @@
       <div class="login-title">NIGHT MODE</div>
       <div class="login-content">
         <div class="form-bar">
-          <input type="text" placeholder="用户名" v-model="form.account">
+          <input type="text" placeholder="用户名" @keyup.enter="onLogin" v-model="form.account">
         </div>
         <div class="form-bar">
-          <input type="password" placeholder="密码" v-model="form.pwd">
+          <input type="password" placeholder="密码" @keyup.enter="onLogin" v-model="form.pwd">
         </div>
         <div class="form-bar">
           <button @click="onLogin">登录</button>

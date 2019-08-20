@@ -2,7 +2,10 @@
   <div>
     <div class="header-bar">
       <Input v-model="query.queryStr" placeholder="输入商家名称/手机号搜" search style="width:200px;"/>
-      <span class="seach-lable">认证日期：</span><DatePicker type="daterange" placement="bottom-end" placeholder="请选择注册日期" style="width: 200px"></DatePicker>
+      <span class="seach-lable">认证日期：</span>
+      <DatePicker type="daterange" placement="bottom-end"
+        placeholder="请选择注册日期" style="width: 200px"
+        v-model="timeArr" @on-clear='clear_change' @on-change='date_change'></DatePicker>
       <span class="seach-lable">审核状态：</span>
       <Select style="width:100px" v-model="query.auditStatus">
         <Option v-for="item in auditStatusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
@@ -26,6 +29,10 @@
     <div style="padding-top:30px;text-align:center;">
       <Page :total="dataCount" border show-total :current="startRow" :page-size="query.pageSize" @on-change="changepage"/>
     </div>
+    <Modal :title="imgTitile" v-model="visible">
+      <img :src="imgSrc" v-if="visible" style="width: 100%">
+      <div slot="footer"></div>
+    </Modal>
   </div>
 </template>
 <script>
@@ -41,8 +48,12 @@ export default {
         execStatus: -1, //活动执行状态（-1全部  0待执行 1执行中 2已结束）
         shelvesStatus: -1,//上架状态(-1全部  0已上架 1已下架)
         beginTime: '',//认证日期开始时间
-        endTime: ''//认证日期结束时间
+        endTime: '',//认证日期结束时间
+        id: this.$route.params.id
       },
+      timeArr: [],
+      imgTitile: '',//大图标题
+      visible:  false,//显示查看大图弹框
       dataCount:0,//总条数
       startRow: 1, // 当前页面
       list: [],//活动列表
@@ -153,6 +164,11 @@ export default {
                 attrs: {
                   src: params.row.post,
                   style: 'width:100%;padding:5px;'
+                },
+                 on: {
+                  click: () => {
+                    this.lookBigImg(params.row.post, params.row.nickName)
+                  }
                 }
               })
             }
@@ -180,7 +196,6 @@ export default {
             title: '活动状态',
             render: (h,params) => {
               let  text = ''
-              console.log()
               switch (params.row.execStatus) {
                 case 0:
                   text = '待执行'
@@ -237,7 +252,6 @@ export default {
                           type: 1,
                           id: params.row.id
                         }
-                        this.$Message.info('审核已通过')
                         this.merchantActivityAudit(data)
                       }
                     });
@@ -279,7 +293,6 @@ export default {
                           reason: this.reason,
                           id: params.row.id
                         }
-                         this.$Message.info('审核已拒绝')
                         this.merchantActivityAudit(data)
                       },
                       onCancel: () => this.reason = '' // 取消按钮清空不通过原因
@@ -307,7 +320,6 @@ export default {
                           type: 3,
                           id: params.row.id
                         }
-                        this.$Message.info('已强制下架')
                         this.merchantActivityAudit(data)
                       }
                     })
@@ -337,7 +349,13 @@ export default {
 
       })
     },
-     // 页码改变
+     //查看大图
+    lookBigImg (imgUrl, title) {
+      this.imgSrc = imgUrl;
+      this.imgTitile = title;
+      this.visible = true;
+    },
+    // 页码改变
     changepage(index) {
       this.query.pageNum = index;
       this.startRow =  index
@@ -361,6 +379,16 @@ export default {
       this.startRow = 1
       this.getActivityList()
     },
+    //清空日历
+    clear_change() {
+      this.query.beginDate = '';
+      this.query.endDate = '';
+    },
+    //日历改变
+    date_change(date) {
+      this.query.beginDate = date[0]
+      this.query.endDate = date[1]
+    }
   },
   mounted () {
     this.getActivityList()

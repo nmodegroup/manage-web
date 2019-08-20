@@ -10,9 +10,9 @@ export function get_account_list (data) {//商家管理获取账号列表
   })
 }
 
-export function on_switch (data) {//账号管理启用禁用
+export function on_switch () {//账号管理启用禁用
   return request({
-    url: '/web/merchant/switch' + requestParams.generateParams(data),
+    url: '/web/merchant/switch',
     method: 'put',
     headers: {
       'Content-type': 'application/x-www-form-urlencoded'

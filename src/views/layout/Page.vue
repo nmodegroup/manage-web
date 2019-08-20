@@ -2,8 +2,8 @@
   <div class="layout">
     <Sider :style="{position: 'fixed', height: '100vh', left: 0, overflow: 'auto'}">
       <div class="login-frame">NIGHT MODE</div>
-      <Menu active-name="用户管理,账号管理" theme="dark" width="auto" 
-          :open-names="['用户管理']"
+      <Menu :active-name="activeNme" theme="dark" width="auto" 
+          :open-names="openName"
           @on-select="onMenuItem"
           >
           <Submenu name="用户管理">
@@ -43,7 +43,7 @@
             <Icon type="ios-arrow-down"></Icon>
           </a>
           <DropdownMenu slot="list">
-            <DropdownItem>退出登录</DropdownItem>
+            <DropdownItem @click.native="loginOut">退出登录</DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </Header>
@@ -53,7 +53,7 @@
          <BreadcrumbItem>{{menuItemText}}</BreadcrumbItem>
         </Breadcrumb>
         <Card>
-          <router-view/>
+          <router-view v-on:listenToChildEvent="showMsgFromChild"/>
         </Card>
       </Content>
     </Layout>
@@ -63,25 +63,39 @@
 export default {
   data() {
     return {
-        menuItemText: '账号管理',
-        menuText: '用户管理',
-        replace: true
+      menuItemText: '账号管理',
+      menuText: '用户管理',
+      activeNme: '用户管理,账号管理',
+      openName: ['用户管理']
     }
   },
   methods: {
     onMenuItem (name) {
       let idx = name.indexOf(',')
       if ( idx != -1) {
+        sessionStorage.setItem('activeName', name)
+        sessionStorage.setItem('openName', name.slice(0, idx))
+        sessionStorage.setItem('menuItemText', name.slice(idx + 1))
         this.menuText = name.slice(0, idx)
         this.menuItemText = name.slice(idx + 1)
       }
     },
-    onGetMenu () {
-      console.log(11)
+    loginOut () {
+      console.log('退出登录')
+    },
+    initMenu () {
+      this.activeNme = sessionStorage.getItem('activeName') || '用户管理,账号管理'
+      this.menuText = this.openName[0] = sessionStorage.getItem('openName') || '用户管理'
+      this.menuItemText = sessionStorage.getItem('menuItemText') || '账号管理'
+    },
+    showMsgFromChild () {
+      this.initMenu()
     }
   },
+  created () {
+    this.initMenu()
+  },
   mounted() {
-
   }
 }
 </script>

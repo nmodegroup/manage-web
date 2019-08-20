@@ -3,11 +3,15 @@
     <div class="header-bar">
         <Input v-model="query.queryStr" placeholder="输入用户手机号/活动主题/酒吧名称" search style="width:200px;"/>
         <span class="seach-lable">预定日期：</span>
-        <DatePicker type="daterange" placement="bottom-end" placeholder="请选择预定日期" style="width: 200px"></DatePicker>
+        <DatePicker type="daterange" placement="bottom-end"
+        placeholder="请选择注册日期" style="width: 200px"
+        v-model="timeArr" @on-clear='clear_change' @on-change='date_change'></DatePicker>
+        <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
+        <Button  @click="onReset">重置</Button>
     </div>
     <Table stripe :columns="columns1" :data="list"></Table>
     <div style="padding-top:30px;text-align:center;">
-      <Page :total="100" show-total  style=""/>
+      <Page  :total="dataCount" border show-total :current="startRow" :page-size="query.pageSize" @on-change="changepage"/>
     </div>
   </div>
 </template>
@@ -25,6 +29,8 @@ export default {
       },
       startRow: 1, // 当前页面
       list: [],//列表
+      dataCount: 0,//列表条数
+      timeArr: [],
       columns1: [
           {
             title: '微信昵称',
@@ -55,22 +61,51 @@ export default {
             key: 'theme'
           }
       ],
-      data1: [
-          {}
-      ]
     }
   },
   methods: {
-    getActivityLsit () {
+    getActivityList () {
       get_activity_list(this.query).then(res => {
         this.list = res.data.list
+        this.dataCount = res.data.totalSize
       }).catch(error => {
 
       })
+    },
+     // 页码改变
+    changepage(index) {
+      this.query.pageNum = index;
+      this.startRow =  index
+      this.getActivityList()
+    },
+    // 搜索按钮事件
+    onSerach() {
+      this.query.pageNum = 1
+      this.startRow = 1
+      this.getActivityList()
+    },
+    // 重置按钮事件
+    onReset() {
+      this.query.queryStr = ''
+      this.query.beginTime = ''
+      this.query.endTime = ''
+      this.query.pageNum = 1
+      this.startRow = 1
+      this.getActivityList()
+    },
+    //清空日历
+    clear_change() {
+      this.query.beginDate = '';
+      this.query.endDate = '';
+    },
+    //日历改变
+    date_change(date) {
+      this.query.beginDate = date[0]
+      this.query.endDate = date[1]
     }
   },
   mounted () {
-    this.getActivityLsit()
+    this.getActivityList()
   },
   beforeCreate () {
   },

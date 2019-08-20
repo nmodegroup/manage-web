@@ -60,7 +60,8 @@ export default {
       query: {
         pageSize: 10,
         pageNum: 1,
-        queryStr: ''//商家名称或手机号
+        queryStr: '',//商家名称或手机号
+        id: this.$route.params.id
       },
       showTableList: false,//显示桌位图
       dataCount: 0,//列表条数
