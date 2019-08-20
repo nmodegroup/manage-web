@@ -159,7 +159,7 @@ export default {
                         title: title,
                         content: content,
                         onOk: () => {
-                          this.onSwitch()
+                          this.onSwitch({id: params.row.id})
                         }
                       });
 
@@ -230,13 +230,13 @@ export default {
     },
     //清空日历
     clear_change() {
-      this.query.beginDate = '';
-      this.query.endDate = '';
+      this.query.beginTmie = '';
+      this.query.endTime = '';
     },
     //日历改变
     date_change(date) {
-      this.query.beginDate = date[0]
-      this.query.endDate = date[1]
+      this.query.beginTime = date[0]
+      this.query.endTime = date[1]
     },
     //查看大图
     lookBigImg (imgUrl, title) {
@@ -245,8 +245,8 @@ export default {
       this.visible = true;
     },
     //禁用账号启用账号切换
-    onSwitch () {
-      on_switch().then(res => {
+    onSwitch (data) {
+      on_switch(data).then(res => {
         this.query.pageNum = 1
         this.getAccountList()
       }).catch(error => {

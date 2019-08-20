@@ -5,7 +5,7 @@ import {
 import axios from 'axios'
 import router from '@/router'
 const service = axios.create({
-  baseURL: '/api', //测试环境接口
+  baseURL: 'https://dev.api.nightmodeplus.com', //测试环境接口
   //baseURL: 'https://www.nightmodeplus.com',  //生产环境的接口
   timeout: 200000
 })

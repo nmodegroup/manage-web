@@ -10,15 +10,15 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {
-      '/api': {
-        target: 'https://dev.api.nightmodeplus.com',
-        changeOrigin: true,
-        pathRewrite: {
-          '^/api': ''
-        }
-      },
-    },
+    // proxyTable: {
+    //   '/nm': {
+    //     target: 'https://dev.api.nightmodeplus.com',
+    //     changeOrigin: true,
+    //     pathRewrite: {
+    //       '^/nm': ''
+    //     }
+    //   },
+    // },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST
