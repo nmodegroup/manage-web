@@ -17,6 +17,11 @@ Vue.prototype.$goto = function (name, query, params) {
     })
   }, delay)
 }
+Vue.prototype.staticURL = function (path) {
+  if (path) {
+    return  'https://dev.api.nightmodeplus.com/source/' + path
+  }
+}
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

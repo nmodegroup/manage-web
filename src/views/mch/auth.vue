@@ -10,11 +10,35 @@
       <Select style="width:100px" v-model="query.auditStatus">
         <Option v-for="item in auditStatusList" :value="item.value" :key="item.value">{{ item.label }}</Option>
       </Select>
+      <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
+      <Button  @click="onReset">重置</Button>
     </div>
-    <Table stripe :columns="columns1" :data="list"></Table>
+    <Table stripe :columns="columns1" :data="list" height="450"></Table>
     <div style="padding-top:30px;text-align:center;">
       <Page :total="dataCount" border show-total :current="startRow" :page-size="query.pageSize" @on-change="changepage"/>
     </div>
+    <!-- 店铺简介  -->
+     <Modal :title="layerTitle" v-model="introVisible">
+      <p>{{mchIntro}}</p>
+      <div slot="footer"></div>
+    </Modal>
+    <!-- 查看封面 -->
+    <Modal :title="layerTitle" v-model="imgVisible">
+      <div class="cover-frame">
+        <img class="cover-img" v-for="(cover, idx) in coverImgList" :key="idx" :src="staticURL(cover.img)" alt="">
+      </div>
+      <div slot="footer"></div>
+    </Modal>
+    <!-- 查看调酒师 -->
+    <Modal :title="layerTitle" v-model="bartenderVisible">
+      <div class="bartender-frame">
+        <div class="bartender-item" v-for="(bartender, idx) in bartenderList" :key="idx">
+          <img :src="staticURL(bartender.img)" alt="">
+          <p>{{bartender.desc}}</p>
+        </div>
+      </div>
+      <div slot="footer"></div>
+    </Modal>
   </div>
 </template>
 <script>
@@ -36,6 +60,16 @@ export default {
       list: [],//认证列表
       timeArr: [],
       dataCount:0,//总条数
+      //简介
+      mchIntro: '',
+      introVisible: false,
+      layerTitle: '',
+      //封面图
+      coverImgList: [],
+      imgVisible: false,
+      //调酒师bartender
+      bartenderList: [],
+      bartenderVisible: false,
       auditStatusList: [
         {
           label: '全部',
@@ -56,34 +90,42 @@ export default {
       columns1: [
           {
             title: '微信昵称',
-            key: 'nickName'
+            key: 'nickName',
+            width:100
           },
           {
             title: '手机号',
-            key: 'phone'
+            key: 'phone',
+            width:120
           },
           {
             title: '注册日期',
-            key: 'registDate'
+            key: 'registDate',
+            width:100
           },
           {
             title: '申请认证日期',
-            key: 'submitDate'
+            key: 'submitDate',
+            width:110
           },
           {
             title: '商家名称',
-            key: 'name'
+            key: 'name',
+            width:100
           },
           {
             title: '所在区域',
-            key: 'area'
+            key: 'area',
+            width:120
           },
           {
             title: '详细地址',
-            key: 'address'
+            key: 'address',
+            width:160
           },
           {
             title: '所属类型',
+            width:100,
             render: (h,params) => {
               let  text = ''
               switch (params.row.type) {
@@ -102,10 +144,11 @@ export default {
           },
           {
             title: 'logo',
+            width:100,
             render: (h,params) => {
               return h('img',{
                 attrs: {
-                  src: params.row.logo,
+                  src: this.staticURL(params.row.logo),
                   style: 'width:100%;padding:5px;'
                 }
               })
@@ -113,10 +156,12 @@ export default {
           },
           {
             title: '人均消费',
+            width:100,
             key: 'price'
           },
           {
             title: '店铺封面',
+            width:100,
             render: (h,params) => {
               return h('div', [
               h('a', {
@@ -128,7 +173,9 @@ export default {
                 },
                 on: {
                   click: () => {
-                    
+                    this.imgVisible = true
+                    this.layerTitle = params.row.name
+                    this.getCover({id: params.row.id})
                   }
                 }}, '查看封面')
               ])
@@ -136,6 +183,7 @@ export default {
           },
           {
             title: '调酒师',
+            width:110,
             render: (h,params) => {
               return h('div', [
               h('a', {
@@ -147,7 +195,9 @@ export default {
                 },
                 on: {
                   click: () => {
-                    
+                    this.bartenderVisible = true
+                    this.layerTitle = params.row.name
+                    this.getBartender({id: params.row.id})
                   }
                 }}, '查看调酒师')
               ])
@@ -155,10 +205,23 @@ export default {
           },
           {
             title: '店铺简介',
-            key: 'desc'
+            width:100,
+            key: 'desc',
+            render: (h,params) => {
+              return h('a',{
+                on: {
+                  click: () => {
+                    this.mchIntro = params.row.desc
+                    this.introVisible = true;
+                    this.layerTitle = params.row.name
+                  }
+                }
+              }, '查看简介')
+            }
           },
           {
             title: '审核状态',
+            width:100,
             render: (h,params) => {
               let  text = ''
               switch (params.row.auditStatus) {
@@ -272,10 +335,36 @@ export default {
 
       })
     },
+    // 搜索按钮事件
+    onSerach() {
+      this.query.pageNum = 1
+      this.startRow = 1
+      this.getAuthList()
+    },
+    // 重置按钮事件
+    onReset() {
+      this.query.queryStr = ''
+      this.query.beginTime = ''
+      this.query.endTime = ''
+      this.query.auditStatus = -1
+      this.query.pageNum = 1
+      this.startRow = 1
+      this.getAuthList()
+    },
     //获取封面图
-    getCover() {
+    getCover(data) {
       get_cover(data).then(res  => {
+        console.log(res.data)
+        this.coverImgList = res.data
+      }).catch(error => {
 
+      })
+    },
+    //获取调酒师信息
+    getBartender(data) {
+      get_bartender(data).then(res => {
+        this.bartenderList = res.data
+        console.log(res.data)
       }).catch(error => {
 
       })
@@ -288,13 +377,13 @@ export default {
     },
     //清空日历
     clear_change() {
-      this.query.beginDate = '';
-      this.query.endDate = '';
+      this.query.begintime = '';
+      this.query.endtime = '';
     },
     //日历改变
     date_change(date) {
-      this.query.beginDate = date[0]
-      this.query.endDate = date[1]
+      this.query.begintime = date[0]
+      this.query.endtime = date[1]
     }
   },
   mounted () {
@@ -308,3 +397,37 @@ export default {
   }
 }
 </script>
+<style scoped>
+  .cover-frame {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height:280px;
+    white-space: nowrap;
+  }
+  .cover-img{
+    width:auto;
+    height:100%;
+    margin-right:10px;
+  }
+  .bartender-frame {
+    overflow-x: scroll;
+    height: 500px;
+    display: flex;
+  }
+  .bartender-item{
+    margin-right:10px;
+    width: 200px;
+    height: 400px;
+    font-size: 0;
+  }
+  .bartender-item img{
+    width:200px;
+    height:300px;
+  }
+  .bartender-item p{
+    padding-top: 10px;
+    width:200px;
+    line-height: 20px;
+    font-size: 12px;
+  }
+</style>

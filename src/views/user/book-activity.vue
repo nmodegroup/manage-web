@@ -9,7 +9,7 @@
         <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
         <Button  @click="onReset">重置</Button>
     </div>
-    <Table stripe :columns="columns1" :data="list"></Table>
+    <Table stripe :columns="columns1" :data="list" height="450"></Table>
     <div style="padding-top:30px;text-align:center;">
       <Page  :total="dataCount" border show-total :current="startRow" :page-size="query.pageSize" @on-change="changepage"/>
     </div>
@@ -25,7 +25,8 @@ export default {
         pageNum: 1,
         queryStr: '',//酒吧名称或用户手机号
         beginTime: '',//注册日期开始时间
-        endTime: ''//注册日期结束时间
+        endTime: '',//注册日期结束时间
+        id: this.$route.params.id
       },
       startRow: 1, // 当前页面
       list: [],//列表

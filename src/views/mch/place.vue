@@ -5,44 +5,21 @@
       <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
       <Button  @click="onReset">重置</Button>
     </div>
-    <Table stripe :columns="columns1" :data="list"></Table>
+    <Table stripe :columns="columns1" :data="list" height="450"></Table>
     <div style="padding-top:30px;text-align:center;">
       <Page :total="dataCount" border show-total :current="startRow" :page-size="query.pageSize" @on-change="changepage"/>
     </div>
     <Modal v-model="showTableList" :closable="false" width="420">
       <div class="info-content">
-        <div class="info-type">
+        <div class="info-type" v-for="(info, idx) in infoList" :key="idx">
           <div class="info-header-bar">
-            <div calss="info-title">大厅</div>
-            <div calss="info-rule">4人桌</div>
+            <div calss="info-title">{{info.name}}</div>
           </div>
-          <div class="info-body">
-            <div class="info-grid">1</div>
-            <div class="info-grid">1</div>
-            <div class="info-grid">1</div>
-            <div class="info-grid">1</div>
-            <div class="info-grid">1</div>
-            <div class="info-grid">1</div>
-            <div class="info-grid">1</div>
-            <div class="info-grid">1</div>
-          </div>
-        </div>
-        <div class="info-type">
-          <div class="info-header-bar">
-            <div calss="info-title">吧台</div>
-            <div calss="info-rule">1人桌</div>
-          </div>
-          <div class="info-body">
-            <div class="info-grid">1</div>
-          </div>
-        </div>
-        <div class="info-type">
-          <div class="info-header-bar">
-            <div calss="info-title">包房</div>
-            <div calss="info-rule">4人桌</div>
-          </div>
-          <div class="info-body">
-            <div class="info-grid">1</div>
+          <div class="info-body" v-for="(item, index) in info.tables" :key="index">
+            <div class="info-grid" >
+              <div>{{item.name}}</div>
+              <div>{{item.num}}人</div>
+            </div>
           </div>
         </div>
       </div>
@@ -106,7 +83,7 @@ export default {
                       id: params.row.id
                     }
                     this.showTableList = true
-                    this.getTableInfo()
+                    this.getTableInfo(data)
                   }
                 }
               }, '查看桌位图')
@@ -126,7 +103,7 @@ export default {
     },
     getTableInfo (data) {
       get_table_info(data).then(res => {
-        this.infoList = res.data.list
+        this.infoList = res.data
       })
     },
     //点击我知道了弹框
@@ -176,33 +153,32 @@ export default {
     display: flex;
     justify-content: space-between;
     padding-bottom: 10px;
+    font-size: 15px;
   }
   .info-title {
     color:rgba(0, 0, 0, .8);
     font-size: 15px;
-  }
-  .info-rule {
-    color:rgba(0, 0, 0, .6);
-    font-size: 12px;
   }
   .info-body {
     display: flex;
     flex-wrap:wrap;
   }
   .info-grid {
-    background-color: rgba(58, 124, 221, 1);
-    color:rgba(255, 255, 255, 1);
     width:50px;
     height: 50px;
     border-radius: 4px;
     text-align: center;
-    line-height: 50px;
     font-size: 15px;
     font-weight: 500;
     margin-right: 9px;
     margin-bottom: 9px;
+    border: 1px solid rgba(58, 124, 221, 1);
   }
   .info-grid:nth-child(6n) {
     margin-right: 0;
+  }
+  .info-grid> div{
+    height: 24px;
+    line-height: 24px;
   }
 </style>

@@ -60,6 +60,7 @@
   </div>
 </template>
 <script>
+import {login_out} from "@/api/login"
 export default {
   data() {
     return {
@@ -81,7 +82,9 @@ export default {
       }
     },
     loginOut () {
-      console.log('退出登录')
+      login_out().then(res => {
+        this.$goto('login')
+      }).catch(error => {})
     },
     initMenu () {
       this.activeNme = sessionStorage.getItem('activeName') || '用户管理,账号管理'

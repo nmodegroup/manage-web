@@ -30,9 +30,10 @@
       <Page :total="dataCount" border show-total :current="startRow" :page-size="query.pageSize" @on-change="changepage"/>
     </div>
     <Modal :title="imgTitile" v-model="visible">
-      <img :src="imgSrc" v-if="visible" style="width: 100%">
+      <img :src="staticURL(imgSrc)" v-if="visible" style="width: 100%">
       <div slot="footer"></div>
     </Modal>
+
   </div>
 </template>
 <script>
@@ -162,7 +163,7 @@ export default {
             render: (h,params) => {
               return h('img',{
                 attrs: {
-                  src: params.row.post,
+                  src: this.staticURL(params.row.post),
                   style: 'width:100%;padding:5px;'
                 },
                  on: {

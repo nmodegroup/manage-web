@@ -12,14 +12,10 @@
       <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
       <Button  @click="onReset">重置</Button>
     </div>
-    <Table stripe :columns="columns1" :data="list"></Table>
+    <Table stripe :columns="columns1" :data="list" height="450"></Table>
     <div style="padding-top:30px;text-align:center;">
       <Page :total="dataCount" border show-total :current="startRow" :page-size="query.pageSize" @on-change="changepage"/>
     </div>
-    <Modal :title="imgTitile" v-model="visible">
-      <img :src="imgSrc" v-if="visible" style="width: 100%">
-      <div slot="footer"></div>
-    </Modal>
   </div>
 </template>
 <script>
@@ -36,8 +32,6 @@ export default {
         endTime: ''//注册日期结束时间
       },
       timeArr: [],
-      imgTitile: '',//大图标题
-      visible:  false,//显示查看大图弹框
       dataCount:0,//总条数
       startRow: 1, // 当前页面
       list: [],//用户账号列表
@@ -57,16 +51,12 @@ export default {
       columns1: [
           {
             title: '头像',
+            width:100,
             render: (h,params) => {
               return h('img',{
                 attrs: {
                   src: params.row.portrait,
                   style: 'width:100%;padding:5px;'
-                },
-                on: {
-                  click: () => {
-                    this.lookBigImg(params.row.portrait, params.row.nickName)
-                  }
                 }
               })
             }
@@ -93,7 +83,8 @@ export default {
           },
           {
             title: '详细地址',
-            key: 'address'
+            key: 'address',
+            width:200
           },
           {
             title: '所属类型',
