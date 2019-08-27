@@ -101,7 +101,7 @@ export default {
   }
   .banner-add{
     cursor: pointer;
-  }
+  } 
   .banner-btn-frame{
     padding-top:7px;
     padding-bottom: 5px;

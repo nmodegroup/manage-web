@@ -8,7 +8,7 @@ html, body {
   background-color: rgba(239, 239, 239, 1);
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: scroll;
 }
 body>div{
   height: 100%;
