@@ -119,11 +119,13 @@ export default {
      // 搜索按钮事件
     onSerach() {
       this.query.pageNum = 1
+      this.query.id = ''
       this.startRow = 1
       this.getTableList()
     },
     // 重置按钮事件
     onReset() {
+      this.query.id = ''
       this.query.queryStr = ''
       this.query.pageNum = 1
       this.startRow = 1

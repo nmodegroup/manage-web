@@ -81,12 +81,14 @@ export default {
     },
     // 搜索按钮事件
     onSerach() {
+      this.query.id = ''
       this.query.pageNum = 1
       this.startRow = 1
       this.getActivityList()
     },
     // 重置按钮事件
     onReset() {
+      this.query.id = ''
       this.query.queryStr = ''
       this.query.beginTime = ''
       this.query.endTime = ''

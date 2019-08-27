@@ -109,15 +109,15 @@ export default {
               }
           },
           {
-              title: '桌位预订次',
+              title: '桌位预订次数',
               key: 'tableAppointNum'
           },
           {
-              title: '桌位排位次',
+              title: '桌位排位次数',
               key: 'tableQueenNum'
           },
           {
-            title: '活动预订次',
+            title: '活动预订次数',
             key: 'activityAppointNum'
           }
       ]

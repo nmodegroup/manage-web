@@ -339,10 +339,12 @@ export default {
     onSerach() {
       this.query.pageNum = 1
       this.startRow = 1
+      this.query.id = ''
       this.getAuthList()
     },
     // 重置按钮事件
     onReset() {
+      this.query.id = ''
       this.query.queryStr = ''
       this.query.beginTime = ''
       this.query.endTime = ''
@@ -377,13 +379,13 @@ export default {
     },
     //清空日历
     clear_change() {
-      this.query.begintime = '';
-      this.query.endtime = '';
+      this.query.beginTime = '';
+      this.query.beginTime = '';
     },
     //日历改变
     date_change(date) {
-      this.query.begintime = date[0]
-      this.query.endtime = date[1]
+      this.query.beginTime = date[0]
+      this.query.beginTime = date[1]
     }
   },
   mounted () {

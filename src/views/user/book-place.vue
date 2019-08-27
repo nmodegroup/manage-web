@@ -185,11 +185,13 @@ export default {
     onSerach() {
       this.query.pageNum = 1
       this.startRow = 1
+      this.query.id = ''
       this.getPlacelist()
     },
     // 重置按钮事件
     onReset() {
       this.query.queryStr = ''
+      this.query.id = ''
       this.query.beginTime = ''
       this.query.endTime = ''
       this.query.arriveStatus = -1
