@@ -72,3 +72,6 @@ body>div{
 .ivu-menu-dark.ivu-menu-vertical .ivu-menu-item{
   padding-left: 65px !important;
 }
+.ivu-switch-checked{
+  background-color: rgba(58,124,221,1);
+}

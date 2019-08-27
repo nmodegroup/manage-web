@@ -12,12 +12,10 @@
           </div>
         </Upload>
         <div class="banner-btn-frame">
-          <div class="bnt-join">
+          <div class="bnt-join" @click="onJoin">
             <span>跳转关联</span> 
           </div>
-          <div class="toggle-frame">
-            <Switch v-model="switch1" @on-change="change" />
-          </div>
+          <i-switch v-model="switch1" @on-change="change" />
         </div>
       </div>
     </div>
@@ -30,11 +28,11 @@
             <div class="bar-content">
               <div class="bar-name">JUNGLE BAR</div>
               <div class="bar-time">
-                <img src="../../../static/img/icon_location.png">
+                <img class="icon-time" src="../../../static/img/icon_time.png">
                 20:00-2:00
               </div>
               <div class="bar-address">
-                <img src="../../../static/img/icon_location.png">
+                <img class="icon-adre" src="../../../static/img/icon_location.png">
                 深圳保利文化广场F3层
               </div>
             </div>
@@ -43,9 +41,20 @@
             <div class="btn-tips">餐吧</div>
           </div>
         </div>
-        <div class="bar-btn"></div>
+        <div class="bar-btn">
+          <Button type="primary">替换</Button>
+          <i-switch v-model="switch1" @on-change="change" />
+        </div>
       </div>
     </div>
+    <Modal
+        v-model="joinModal"
+        title="请选择banner关联活动或商家">
+        <p>Content of dialog</p>
+        <p>Content of dialog</p>
+        <p>Content of dialog</p>
+        <div slot="footer"></div>
+    </Modal>
   </div>
 </template>
 <script>
@@ -53,7 +62,8 @@ import {get_auth_list} from "@/api/mch"
 export default {
   data () {
     return {
-      switch1: false
+      switch1: false,
+      joinModal: false
     }
   },
   methods: {
@@ -66,6 +76,9 @@ export default {
     },
     change (status) {
       this.$Message.info('开关状态：' + status);
+    },
+    onJoin() {
+
     }
   },
   mounted () {
@@ -106,6 +119,8 @@ export default {
     padding-top:7px;
     padding-bottom: 5px;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   .bnt-join{
     width:255px;
@@ -136,9 +151,17 @@ export default {
     border-right-color: rgba(248, 248, 251, 1);
     transform: rotate(45deg)
   }
+  .bar-item {
+    background-color: rgba(248, 248, 251, 1);
+    width:367px;
+    height: 174px;
+  }
   .bar-header{
     display: flex;
     padding:16px 11px;
+    border-bottom: 1px solid rgba(0, 0, 0, .1);
+    align-items: center;
+    justify-content: space-between;
   }
   .bar-header-r{
     display: flex;
@@ -161,10 +184,40 @@ export default {
     color:rgba(0, 0, 0, .5);
     font-size: 13px;
     padding-bottom: 6px;
+    align-items: center;
   }
   .bar-address {
     display: flex;
     color:rgba(0, 0, 0, .5);
     font-size: 13px;
+    align-items: center;
+  }
+  .bar-btn {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 11px;
+  }
+  .btn-tips {
+    width:40px;
+    height:20px;
+    border-radius:1px;
+    opacity:0.8;
+    border:1px solid rgba(206,91,235,1);
+    font-size:12px;
+    color:rgba(228,99,255,1);
+    text-align: center;
+    line-height: 18px;
+  }
+  .icon-time {
+    width:14px;
+    height: 14px;
+    margin-right: 4px;
+  }
+  .icon-adre {
+    width:14px;
+    height: 14px;
+    margin-right: 4px;
   }
 </style>
