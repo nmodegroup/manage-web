@@ -3,7 +3,7 @@
     <div class="header-bar">顶部banner图管理</div>
     <div class="index-body">
       <div class="banner-item">
-        <Upload action="//jsonplaceholder.typicode.com/posts/">
+        <Upload action="action">
           <div class="banner-img">
             <div class="banner-add">
               <img src="../../../static/img/icon_add.png">
@@ -42,28 +42,72 @@
           </div>
         </div>
         <div class="bar-btn">
-          <Button type="primary">替换</Button>
+          <Button type="primary" @click="onSelMch(2)">替换</Button>
           <i-switch v-model="switch1" @on-change="change" />
         </div>
       </div>
     </div>
     <Modal
-        v-model="joinModal"
-        title="请选择banner关联活动或商家">
-        <p>Content of dialog</p>
-        <p>Content of dialog</p>
-        <p>Content of dialog</p>
-        <div slot="footer"></div>
+      v-model="joinModal"
+      width="400"
+      title="请选择banner关联活动或商家">
+      <div class="join-btn-frame">
+        <Button @click="onSelActivity">选择活动</Button>
+        <Button @click="onSelMch(1)">选择商家</Button>
+      </div>
+      <div slot="footer"></div>
+    </Modal>
+    <Modal
+      v-model="mchModal"
+      width="400"
+      title="请选择一个商家">
+      <div class="join-btn-frame">
+        <RadioGroup v-model="bannerForm.objId">
+          <div class="radio-item" v-for="item in list" :key="item.id"> 
+            <Radio label="item.id">
+              <span>{{item.name}}</span>
+            </Radio>
+          </div>
+        </RadioGroup>
+      </div>
+    </Modal>
+    <Modal
+      v-model="activityModal"
+      width="400"
+      title="请选择一个活动 ">
+      <div class="join-btn-frame">
+        <RadioGroup v-model="bannerForm.objId">
+          <div class="radio-item" v-for="item in list" :key="item.id"> 
+            <Radio label="item.id">
+              <span>{{item.name}}</span>
+            </Radio>
+          </div>
+        </RadioGroup>
+      </div>
     </Modal>
   </div>
 </template>
 <script>
-import {get_auth_list} from "@/api/mch"
+import {get_homePage, get_mch_list, get_activity_list} from "@/api/index"
+import constant from "../../constant.js"
 export default {
   data () {
     return {
       switch1: false,
-      joinModal: false
+      joinModal: false,
+      activityModal: false,
+      mchModal: false,
+      list: [],
+      bannerForm: {
+        id: '',//banner id，新增不传，修改必传
+        img: '',//banner url
+        objId: '',//商铺或活动id
+        type: '',//关联类型（0商家 1活动）
+        name: '',//酒吧名称或活动名称
+        onStatus: '',//是否启用展示(0启用  1关闭)
+        order: ''//排序 (数值越小越靠前)
+      },
+      roleMch: ''//1:banner选择商家 2：人气酒吧选择商家
     }
   },
   methods: {
@@ -77,12 +121,55 @@ export default {
     change (status) {
       this.$Message.info('开关状态：' + status);
     },
+    //点击关联
     onJoin() {
+      this.joinModal = true
+    },
+    //点击选择活动
+    onSelActivity () {
+      this.joinModal  = false
+      this.activityModal = true
+      this.getActivityList()
+    },
+    //点击选择商家
+    onSelMch (value) {
+      this.roleMch = value
+      this.joinModal = false
+      this.mchModal = true
+      this.getMchList()
+    },
+    //获取首页信息
+    getHomePage () {
+      get_homePage().then(res => {
+        console.log(res)
+      }).then(error => {
 
-    }
+      })
+    },
+    //获取商家列表
+    getMchList () {
+      get_mch_list().then(res => {
+        this.list = res.data
+      }).catch(error => {
+
+      })
+    },
+    //获取活动列表
+    getActivityList () {
+      get_activity_list().then(res => {
+        this.list = res.data
+      }).catch(error => {
+        
+      })
+    },
+    //设置上传文件地址
+    setFileUrl () {
+      this.action = constant.globalData.baseURL + '/common/upload'
+    },
   },
   mounted () {
-    this.getAuthList()
+    this.getHomePage()
+    this.setFileUrl()
   },
   beforeCreate () {
   },
@@ -130,6 +217,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
   }
   .bnt-join span{
     padding-right:11px;
@@ -219,5 +307,12 @@ export default {
     width:14px;
     height: 14px;
     margin-right: 4px;
+  }
+  .join-btn-frame {
+    display: flex;
+    justify-content: space-between;
+  }
+  .radio-item {
+    padding-bottom: 15px;
   }
 </style>
