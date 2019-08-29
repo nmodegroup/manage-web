@@ -2,38 +2,42 @@
   <div>
     <div class="header-bar">顶部banner图管理</div>
     <div class="index-body">
-      <div class="banner-item">
-        <Upload action="action">
-          <div class="banner-img">
-            <div class="banner-add">
+      <div class="banner-item" v-for="(banner, idx)  in bannerList" :key="idx">
+        <Upload :action="action" :headers="headers" :show-upload-list="false"
+        :on-success="handleSuccess" :data ="uploadForm"
+        :before-upload="handleBeforeUpload"
+        >
+          <div class="banner-img-frame">
+            <div class="banner-add" v-show="!banner.img">
               <img src="../../../static/img/icon_add.png">
               <div class="banner-add-tips">点击添加图片</div>
             </div>
+            <img v-show="banner.img" class="banner-img" :src="staticURL(banner.img)" alt="">
           </div>
         </Upload>
         <div class="banner-btn-frame">
           <div class="bnt-join" @click="onJoin">
-            <span>跳转关联</span> 
+            <span :class="[banner.name ? '' : 'arrow']">{{banner.name ? banner.name : '跳转关联'}}</span> 
           </div>
-          <i-switch v-model="switch1" @on-change="change" />
+          <i-switch v-model="banner.onStatus" @on-change="change" />
         </div>
       </div>
     </div>
     <div class="header-bar" style="padding-top: 20px;">人气酒吧管理</div>
     <div class="index-body">
-      <div class="bar-item">
+      <div class="bar-item" v-for="(bar, index)  in barList" :key="index">
         <div class="bar-header">
           <div class="bar-header-r">
-            <img class="bar-cover" src="../../../static/img/icon_add.png">
+            <img class="bar-cover" :src="staticURL(bar.img)">
             <div class="bar-content">
-              <div class="bar-name">JUNGLE BAR</div>
+              <div class="bar-name">{{bar.name}}</div>
               <div class="bar-time">
                 <img class="icon-time" src="../../../static/img/icon_time.png">
-                20:00-2:00
+                <span v-for="(time, idx) in bar.times" :key="idx">{{time}}</span>
               </div>
               <div class="bar-address">
                 <img class="icon-adre" src="../../../static/img/icon_location.png">
-                深圳保利文化广场F3层
+                {{bar.address}}
               </div>
             </div>
           </div>
@@ -43,7 +47,7 @@
         </div>
         <div class="bar-btn">
           <Button type="primary" @click="onSelMch(2)">替换</Button>
-          <i-switch v-model="switch1" @on-change="change" />
+          <i-switch v-model="bar.onStatus" @on-change="change" />
         </div>
       </div>
     </div>
@@ -97,7 +101,7 @@ export default {
       joinModal: false,
       activityModal: false,
       mchModal: false,
-      list: [],
+      list: [],//活动、商家列表
       bannerForm: {
         id: '',//banner id，新增不传，修改必传
         img: '',//banner url
@@ -107,7 +111,17 @@ export default {
         onStatus: '',//是否启用展示(0启用  1关闭)
         order: ''//排序 (数值越小越靠前)
       },
-      roleMch: ''//1:banner选择商家 2：人气酒吧选择商家
+      barList: [],//酒吧列表
+      bannerList: [],//banner图列表
+      roleMch: '',//1:banner选择商家 2：人气酒吧选择商家
+      action: '',//上传图片地址
+      headers: {//设置上传请求头部
+        token: ''
+      },
+      uploadForm: {//上传文件传的参数
+        floder: 'web_image',//保存到的文件夹
+        fileName: ''//带扩展的文件名
+      }
     }
   },
   methods: {
@@ -141,10 +155,32 @@ export default {
     //获取首页信息
     getHomePage () {
       get_homePage().then(res => {
-        console.log(res)
+        let barList = res.data.bar
+        let bannerList = res.data.banner
+        if (bannerList.length < 4) {
+          for (let i = bannerList.length + 1; i < 5; i++) {
+            let form = {
+                  id: '',//banner id，新增不传，修改必传
+                  img: '',//banner url
+                  objId: '',//商铺或活动id
+                  type: '',//关联类型（0商家 1活动）
+                  name: '',//酒吧名称或活动名称
+                  onStatus: 0,//是否启用展示(0启用  1关闭)
+                  order: i//排序 (数值越小越靠前)
+                }
+            bannerList.push(form)
+          }
+        }
+       this.bannerList = bannerList
       }).then(error => {
 
       })
+    },
+    handleSuccess ( response, file, fileList) {
+      console.log(file)
+    },
+    handleBeforeUpload (res) {
+      this.uploadForm.fileName = res.name
     },
     //获取商家列表
     getMchList () {
@@ -170,6 +206,7 @@ export default {
   mounted () {
     this.getHomePage()
     this.setFileUrl()
+    this.headers.token = localStorage.getItem("token") || ''
   },
   beforeCreate () {
   },
@@ -182,22 +219,28 @@ export default {
 <style scoped>
   .index-body {
     display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
   .banner-item{
     width:368px;
     height:319px;
     background:rgba(248, 248, 251, 1);
     border-radius:10px;
-    margin-right: 30px;
+    margin-right: 20px;
     padding:10px;
   }
-  .banner-img {
+  .banner-img-frame {
     height: 218px;
     border-radius:4px;
     border:1px dashed rgba(0,0,0,.2);
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  .banner-img{
+    width:348px;
+    height:218px;
   }
   .banner-add{
     cursor: pointer;
@@ -225,7 +268,7 @@ export default {
     font-size: 14px;
     position: relative;
   }
-  .bnt-join span::after{
+  .bnt-join span.arrow::after{
     content: '';
     position:absolute;
     right:0;
@@ -243,6 +286,7 @@ export default {
     background-color: rgba(248, 248, 251, 1);
     width:367px;
     height: 174px;
+    margin-right: 20px;
   }
   .bar-header{
     display: flex;
@@ -278,7 +322,8 @@ export default {
     display: flex;
     color:rgba(0, 0, 0, .5);
     font-size: 13px;
-    align-items: center;
+    align-items:center;
+    max-width: 160px;
   }
   .bar-btn {
     height: 60px;
@@ -307,6 +352,8 @@ export default {
     width:14px;
     height: 14px;
     margin-right: 4px;
+    align-self: flex-start;
+    margin-top: 2px;
   }
   .join-btn-frame {
     display: flex;
