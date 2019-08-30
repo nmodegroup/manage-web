@@ -1,11 +1,15 @@
 <template>
   <div>
-    <div class="header-bar">顶部banner图管理</div>
+    <div class="header-bar">顶部banner图管理 <span class="tips">提示：未启用的banner才可以编辑</span></div>
     <div class="index-body">
-      <div class="banner-item" v-for="(banner, idx)  in bannerList" :key="idx">
+      <div class="banner-item" v-for="(banner, idx)  in bannerList" :key="idx" @click="onSelUpload(idx)">
+        <span class="banner-tips" v-show="banner.onStatus !== ''">
+          {{ !isNaN(banner.onStatus) && banner.onStatus == 0 ? '已启用' : '未启用'}}
+        </span>
         <Upload :action="action" :headers="headers" :show-upload-list="false"
         :on-success="handleSuccess" :data ="uploadForm"
         :before-upload="handleBeforeUpload"
+        :disabled="!isNaN(banner.onStatus) && banner.onStatus == 0"
         >
           <div class="banner-img-frame">
             <div class="banner-add" v-show="!banner.img">
@@ -16,38 +20,57 @@
           </div>
         </Upload>
         <div class="banner-btn-frame">
-          <div class="bnt-join" @click="onJoin">
-            <span :class="[banner.name ? '' : 'arrow']">{{banner.name ? banner.name : '跳转关联'}}</span> 
+          <div class="btn-join" @click="onJoin(banner, idx)">
+            <span :class="[banner.name ? '' : 'arrow']">{{banner.name ? '已选择：' + banner.name : '点击选择banner的跳转链接'}}</span> 
           </div>
-          <i-switch v-model="banner.onStatus" @on-change="change" />
+          <div class="btn-save-frame">
+            <Button style="width:100px;margin-right:10px;" type="primary" @click="onSaveBanner(idx)">保存banner</Button>
+            <Button style="width:100px;" @click="onToggleBanner(banner)">{{banner.onStatus ? '启用' : '停用'}}</Button>
+          </div>
         </div>
       </div>
     </div>
-    <div class="header-bar" style="padding-top: 20px;">人气酒吧管理</div>
+    <div class="header-bar" style="padding-top: 20px;">人气酒吧管理<span class="tips">提示：未启用的人气酒吧才可以编辑</span></div>
     <div class="index-body">
       <div class="bar-item" v-for="(bar, index)  in barList" :key="index">
-        <div class="bar-header">
-          <div class="bar-header-r">
-            <img class="bar-cover" :src="staticURL(bar.img)">
-            <div class="bar-content">
-              <div class="bar-name">{{bar.name}}</div>
-              <div class="bar-time">
-                <img class="icon-time" src="../../../static/img/icon_time.png">
-                <span v-for="(time, idx) in bar.times" :key="idx">{{time}}</span>
-              </div>
-              <div class="bar-address">
-                <img class="icon-adre" src="../../../static/img/icon_location.png">
-                {{bar.address}}
+        <span class="bar-tips" v-show="bar.onStatus !== ''">
+          {{ !isNaN(bar.onStatus) && bar.onStatus == 0 ? '已启用' : '未启用'}}
+        </span>
+        <div v-show="bar.onStatus !==''">
+          <div class="bar-header">
+            <div class="bar-header-r">
+              <img class="bar-cover" :src="staticURL(bar.img)">
+              <div class="bar-content">
+                <div class="bar-name">{{bar.name}}</div>
+                <div class="bar-time">
+                  <img class="icon-time" src="../../../static/img/icon_time.png">
+                  <span v-for="(time, idx) in bar.times" :key="idx" style="padding-right:5px;">{{time.begin}}-{{time.end}}</span>
+                </div>
+                <div class="bar-address">
+                  <img class="icon-adre" src="../../../static/img/icon_location.png">
+                  {{bar.address}}
+                </div>
               </div>
             </div>
+            <div class="bar-header-l">
+              <div class="btn-tips">{{bar.type == 1 ? '餐吧' : (bar.type == 2 ? '清吧' : '其他')}}</div>
+            </div>
           </div>
-          <div class="bar-header-l">
-            <div class="btn-tips">餐吧</div>
+          <div class="banner-btn-frame">
+            <div class="btn-join"  @click="onSelMch(2, index)">替换</div>
+            <div class="btn-save-frame">
+              <Button style="width:100px;margin-right:10px;" type="primary" @click="onSaveBar(index)">保存人气酒吧</Button>
+              <Button style="width:100px;" @click="onToggleBar(bar)">{{bar.onStatus ? '启用' : '停用'}}</Button>
+            </div>
           </div>
+          <!-- <div class="bar-btn">
+            <Button type="primary" style="width:100px;" @click="onSelMch(2, index)">替换</Button>
+            <Button  style="width:100px;" >启用</Button>
+          </div> -->
         </div>
-        <div class="bar-btn">
-          <Button type="primary" @click="onSelMch(2)">替换</Button>
-          <i-switch v-model="bar.onStatus" @on-change="change" />
+        <div class="banner-add" v-show="bar.onStatus === ''" @click="onSelMch(2, index, bar)">
+          <img src="../../../static/img/icon_add.png">
+          <div class="banner-add-tips">选择一个商家</div>
         </div>
       </div>
     </div>
@@ -63,12 +86,13 @@
     </Modal>
     <Modal
       v-model="mchModal"
+      @on-ok="onMchOk"
       width="400"
       title="请选择一个商家">
       <div class="join-btn-frame">
-        <RadioGroup v-model="bannerForm.objId">
-          <div class="radio-item" v-for="item in list" :key="item.id"> 
-            <Radio label="item.id">
+        <RadioGroup v-model="selMchIdx">
+          <div class="radio-item"  v-for="(item, idx) in list" :key="idx"> 
+            <Radio :label="idx">
               <span>{{item.name}}</span>
             </Radio>
           </div>
@@ -78,12 +102,13 @@
     <Modal
       v-model="activityModal"
       width="400"
+      @on-ok="onActivityOk"
       title="请选择一个活动 ">
       <div class="join-btn-frame">
-        <RadioGroup v-model="bannerForm.objId">
-          <div class="radio-item" v-for="item in list" :key="item.id"> 
-            <Radio label="item.id">
-              <span>{{item.name}}</span>
+        <RadioGroup v-model="selActivityIdx">
+          <div class="radio-item" v-for="(item, idx) in list" :key="idx"> 
+            <Radio :label="idx">
+              <span>{{item.theme}}</span>
             </Radio>
           </div>
         </RadioGroup>
@@ -92,7 +117,9 @@
   </div>
 </template>
 <script>
-import {get_homePage, get_mch_list, get_activity_list} from "@/api/index"
+import {get_homePage, get_mch_list, get_activity_list,
+toggle_banner, update_bar, get_mch_info, update_banner,
+toggle_bar} from "@/api/index"
 import constant from "../../constant.js"
 export default {
   data () {
@@ -102,15 +129,6 @@ export default {
       activityModal: false,
       mchModal: false,
       list: [],//活动、商家列表
-      bannerForm: {
-        id: '',//banner id，新增不传，修改必传
-        img: '',//banner url
-        objId: '',//商铺或活动id
-        type: '',//关联类型（0商家 1活动）
-        name: '',//酒吧名称或活动名称
-        onStatus: '',//是否启用展示(0启用  1关闭)
-        order: ''//排序 (数值越小越靠前)
-      },
       barList: [],//酒吧列表
       bannerList: [],//banner图列表
       roleMch: '',//1:banner选择商家 2：人气酒吧选择商家
@@ -121,22 +139,20 @@ export default {
       uploadForm: {//上传文件传的参数
         floder: 'web_image',//保存到的文件夹
         fileName: ''//带扩展的文件名
-      }
+      },
+      selMchIdx: '',//选中的商家列表下标
+      selActivityIdx: '',//选中的活动列表下标
+      selBannerIdx: '',//选择banner图的下标
+      selBarIdx: ''//选择的人气酒吧下标
     }
   },
   methods: {
-    getAuthList() {
-      get_auth_list(this.query).then(res => {
-        console.log(res)
-      }).catch(error => {
-
-      })
-    },
-    change (status) {
-      this.$Message.info('开关状态：' + status);
-    },
     //点击关联
-    onJoin() {
+    onJoin(banner, idx) {
+      this.selBannerIdx = idx
+      if (banner.onStatus === 0) {
+        return
+      }
       this.joinModal = true
     },
     //点击选择活动
@@ -146,9 +162,13 @@ export default {
       this.getActivityList()
     },
     //点击选择商家
-    onSelMch (value) {
+    onSelMch (value, index, bar) {
       this.roleMch = value
+      this.selBarIdx = index
       this.joinModal = false
+      if (bar && bar.onStatus === 0) {
+        return
+      }
       this.mchModal = true
       this.getMchList()
     },
@@ -157,7 +177,7 @@ export default {
       get_homePage().then(res => {
         let barList = res.data.bar
         let bannerList = res.data.banner
-        if (bannerList.length < 4) {
+        if (bannerList.length < 4) {//四个banner位置
           for (let i = bannerList.length + 1; i < 5; i++) {
             let form = {
                   id: '',//banner id，新增不传，修改必传
@@ -165,20 +185,34 @@ export default {
                   objId: '',//商铺或活动id
                   type: '',//关联类型（0商家 1活动）
                   name: '',//酒吧名称或活动名称
-                  onStatus: 0,//是否启用展示(0启用  1关闭)
+                  onStatus: '',//是否启用展示(0启用  1关闭)
                   order: i//排序 (数值越小越靠前)
                 }
             bannerList.push(form)
           }
         }
-       this.bannerList = bannerList
+        if (barList.length < 3) {//三个人气就把位置
+          for (let i = barList.length + 1; i < 4; i++) {
+            let form = {
+                  id: '',//人气酒吧id，新增不传，修改必传
+                  mid: '',//商铺id
+                  onStatus: '',//是否启用展示(0启用  1关闭)
+                  order: i//排序 (数值越小越靠前)
+                }
+            barList.push(form)
+          }
+        }
+      this.bannerList = bannerList
+      this.barList = barList
       }).then(error => {
 
       })
     },
-    handleSuccess ( response, file, fileList) {
-      console.log(file)
+    //上传图片成功回调
+    handleSuccess ( res, file, fileList) {
+      this.bannerList[this.selBannerIdx].img = res.data
     },
+    //上传图片之前
     handleBeforeUpload (res) {
       this.uploadForm.fileName = res.name
     },
@@ -202,6 +236,89 @@ export default {
     setFileUrl () {
       this.action = constant.globalData.baseURL + '/common/upload'
     },
+    //选择哪个banner
+    onSelUpload (idx) {
+      this.selBannerIdx = idx
+    },
+    //启用禁用banner
+    onToggleBanner (banner) {
+      let text = banner.onStatus == 1 ? '（启用）' : '（停用）'
+      let that = this
+      this.$Modal.confirm({
+          title: '提示',
+          content: `是否${text}banner图`,
+          onOk: () => {
+            toggle_banner({id:banner.id}).then(res => {
+              that.getHomePage()
+            }).catch(error => {})
+          },
+          onCancel: () => {
+            
+          }
+      })
+    },
+    //停用启用bar
+    onToggleBar(bar) {
+      let text = bar.onStatus == 1 ? '（启用）' : '（停用）'
+      let that = this
+      this.$Modal.confirm({
+          title: '提示',
+          content: `是否${text+bar.name}`,
+          onOk: () => {
+            toggle_bar({id:bar.id}).then(res => {
+              that.getHomePage()
+            }).catch(error => {})
+          },
+          onCancel: () => {
+            
+          }
+      })
+    },
+    //选择商家确认
+    onMchOk() {
+      if (this.roleMch == 1) {
+        this.bannerList[this.selBannerIdx].objId =  this.list[this.selMchIdx].id
+        this.bannerList[this.selBannerIdx].name =  this.list[this.selMchIdx].name
+        this.bannerList[this.selBannerIdx].type = 0
+      } else if (this.roleMch == 2) {
+        let id =  this.list[this.selMchIdx].id
+        this.getMchinfo(id)
+      }
+    },
+    onActivityOk() {
+      this.bannerList[this.selBannerIdx].objId =  this.list[this.selActivityIdx].id
+      this.bannerList[this.selBannerIdx].name =  this.list[this.selActivityIdx].theme
+      this.bannerList[this.selBannerIdx].type = 1
+    },
+    //保存banner
+    onSaveBanner(idx) {
+      update_banner(this.bannerList[idx]).then(res => {
+        this.$Message.info('banner图保存成功')
+        this.getHomePage()
+      }).catch(error =>{})
+    },
+    //保存酒吧
+    onSaveBar(idx) {
+      let bar = this.barList[idx]
+      let form = {
+        id: bar.id,
+        mid: bar.mid,
+        onStatus: bar.onStatus,
+        order: bar.order
+      }
+      update_bar(form).then(res => {
+        this.$Message.info('人气酒吧保存成功')
+        this.getHomePage()
+      }).catch(error => {})
+    },
+    //根据ID获取商家信息
+    getMchinfo(id) {
+      get_mch_info({id: id}).then(res => {
+        if (res.data) {
+          this.$set(this.barList,this.selBarIdx, res.data)
+        }
+      }).catch(error => {})
+    }
   },
   mounted () {
     this.getHomePage()
@@ -224,11 +341,12 @@ export default {
   }
   .banner-item{
     width:368px;
-    height:319px;
+    height:360px;
     background:rgba(248, 248, 251, 1);
     border-radius:10px;
     margin-right: 20px;
     padding:10px;
+    position: relative;
   }
   .banner-img-frame {
     height: 218px;
@@ -248,11 +366,8 @@ export default {
   .banner-btn-frame{
     padding-top:7px;
     padding-bottom: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
   }
-  .bnt-join{
+  .btn-join{
     width:255px;
     height: 60px;
     background:rgba(58,124,221,1);
@@ -261,14 +376,16 @@ export default {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    width:348px;
+    color:#fff;
   }
-  .bnt-join span{
+  .btn-join span{
     padding-right:11px;
     color:rgba(248, 248, 251, 1);
     font-size: 14px;
     position: relative;
   }
-  .bnt-join span.arrow::after{
+  .btn-join span.arrow::after{
     content: '';
     position:absolute;
     right:0;
@@ -285,15 +402,19 @@ export default {
   .bar-item {
     background-color: rgba(248, 248, 251, 1);
     width:367px;
-    height: 174px;
     margin-right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
   }
   .bar-header{
     display: flex;
-    padding:16px 11px;
+    padding:30px 11px 16px;
     border-bottom: 1px solid rgba(0, 0, 0, .1);
     align-items: center;
     justify-content: space-between;
+    width:367px;
   }
   .bar-header-r{
     display: flex;
@@ -319,19 +440,22 @@ export default {
     align-items: center;
   }
   .bar-address {
-    display: flex;
     color:rgba(0, 0, 0, .5);
     font-size: 13px;
     align-items:center;
-    max-width: 160px;
+    width: 170px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    height:22px;
   }
-  .bar-btn {
+  /* .bar-btn {
     height: 60px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 11px;
-  }
+  } */
   .btn-tips {
     width:40px;
     height:20px;
@@ -353,7 +477,6 @@ export default {
     height: 14px;
     margin-right: 4px;
     align-self: flex-start;
-    margin-top: 2px;
   }
   .join-btn-frame {
     display: flex;
@@ -361,5 +484,33 @@ export default {
   }
   .radio-item {
     padding-bottom: 15px;
+  }
+  .btn-save-frame {
+    display: flex;
+    padding-top: 10px;
+    justify-content: center;
+  }
+  .banner-tips {
+    background-color: rgba(0, 0, 0, .5);
+    padding: 2px 8px;
+    color:#fff;
+    position:absolute;
+    top:10px;
+    left:10px;
+    font-size: 11px;
+  }
+  .bar-tips {
+    background-color: rgba(0, 0, 0, .5);
+    padding: 2px 8px;
+    color:#fff;
+    position:absolute;
+    top:0;
+    left:0;
+    font-size: 11px;
+  }
+  .tips {
+    font-size: 10px;
+    color:gray;
+    padding-left: 20px;
   }
 </style>

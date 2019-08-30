@@ -95,7 +95,7 @@ export function toggle_banner (data) {//开启/关闭banner展示
 
 export function toggle_bar (data) {//开启/关闭人气酒吧展示
   return request({
-    url: '/web/consumer/banner' + requestParams.generateParams(data),
+    url: '/web/consumer/bar' + requestParams.generateParams(data),
     method: 'put',
     headers: {
       'Content-type': 'application/x-www-form-urlencoded'
