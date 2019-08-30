@@ -9,7 +9,7 @@
         <Upload :action="action" :headers="headers" :show-upload-list="false"
         :on-success="handleSuccess" :data ="uploadForm"
         :before-upload="handleBeforeUpload"
-        :disabled="!isNaN(banner.onStatus) && banner.onStatus == 0"
+        :disabled="banner.onStatus === 0"
         >
           <div class="banner-img-frame">
             <div class="banner-add" v-show="!banner.img">
@@ -292,10 +292,16 @@ export default {
     },
     //保存banner
     onSaveBanner(idx) {
-      update_banner(this.bannerList[idx]).then(res => {
-        this.$Message.info('banner图保存成功')
-        this.getHomePage()
-      }).catch(error =>{})
+      if (!this.bannerList[idx].img) {
+        this.$Message.warning('请上传图片')
+      } else if (!this.bannerList[idx].objId) {
+        this.$Message.warning('请选择banner跳转连接')
+      } else {
+        update_banner(this.bannerList[idx]).then(res => {
+          this.$Message.info('banner图保存成功')
+          this.getHomePage()
+        }).catch(error =>{})
+      }
     },
     //保存酒吧
     onSaveBar(idx) {
