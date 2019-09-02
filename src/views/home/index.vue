@@ -25,7 +25,7 @@
           </div>
           <div class="btn-save-frame">
             <Button style="width:100px;margin-right:10px;" type="primary" @click="onSaveBanner(idx)">保存banner</Button>
-            <Button style="width:100px;" @click="onToggleBanner(banner)">{{banner.onStatus ? '启用' : '停用'}}</Button>
+            <Button style="width:100px;" @click="onToggleBanner(banner)" v-show="banner.id">{{banner.onStatus ? '启用' : '停用'}}</Button>
           </div>
         </div>
       </div>
@@ -44,7 +44,7 @@
                 <div class="bar-name">{{bar.name}}</div>
                 <div class="bar-time">
                   <img class="icon-time" src="../../../static/img/icon_time.png">
-                  <span v-for="(time, idx) in bar.times" :key="idx" style="padding-right:5px;">{{time.begin}}-{{time.end}}</span>
+                  <span v-for="(time, idx) in bar.times" :key="idx" style="padding-right:5px;" v-show="idx < 2">{{time.begin}}-{{time.end}}</span>
                 </div>
                 <div class="bar-address">
                   <img class="icon-adre" src="../../../static/img/icon_location.png">
@@ -57,10 +57,10 @@
             </div>
           </div>
           <div class="banner-btn-frame">
-            <div class="btn-join"  @click="onSelMch(2, index)">替换</div>
+            <div class="btn-join"  @click="onSelMch(2, index, bar)">替换</div>
             <div class="btn-save-frame">
               <Button style="width:100px;margin-right:10px;" type="primary" @click="onSaveBar(index)">保存人气酒吧</Button>
-              <Button style="width:100px;" @click="onToggleBar(bar)">{{bar.onStatus ? '启用' : '停用'}}</Button>
+              <Button style="width:100px;" @click="onToggleBar(bar)" v-show="bar.id">{{bar.onStatus ? '启用' : '停用'}}</Button>
             </div>
           </div>
           <!-- <div class="bar-btn">
@@ -151,6 +151,7 @@ export default {
     onJoin(banner, idx) {
       this.selBannerIdx = idx
       if (banner.onStatus === 0) {
+        this.$Message.warning('停用之后才可以编辑')
         return
       }
       this.joinModal = true
@@ -167,6 +168,7 @@ export default {
       this.selBarIdx = index
       this.joinModal = false
       if (bar && bar.onStatus === 0) {
+        this.$Message.warning('停用之后才可以编辑')
         return
       }
       this.mchModal = true
@@ -249,6 +251,7 @@ export default {
           content: `是否${text}banner图`,
           onOk: () => {
             toggle_banner({id:banner.id}).then(res => {
+              this.$Message.success(`banner图${text}成功`)
               that.getHomePage()
             }).catch(error => {})
           },
@@ -266,12 +269,11 @@ export default {
           content: `是否${text+bar.name}`,
           onOk: () => {
             toggle_bar({id:bar.id}).then(res => {
+              this.$Message.success(`人气酒吧${text}成功`)
               that.getHomePage()
             }).catch(error => {})
           },
-          onCancel: () => {
-            
-          }
+          onCancel: () => {}
       })
     },
     //选择商家确认
@@ -285,6 +287,7 @@ export default {
         this.getMchinfo(id)
       }
     },
+    //或选择活动确认
     onActivityOk() {
       this.bannerList[this.selBannerIdx].objId =  this.list[this.selActivityIdx].id
       this.bannerList[this.selBannerIdx].name =  this.list[this.selActivityIdx].theme
@@ -298,7 +301,7 @@ export default {
         this.$Message.warning('请选择banner跳转连接')
       } else {
         update_banner(this.bannerList[idx]).then(res => {
-          this.$Message.info('banner图保存成功')
+          this.$Message.success('banner图保存成功')
           this.getHomePage()
         }).catch(error =>{})
       }
@@ -306,6 +309,7 @@ export default {
     //保存酒吧
     onSaveBar(idx) {
       let bar = this.barList[idx]
+      console.log(bar)
       let form = {
         id: bar.id,
         mid: bar.mid,
@@ -320,8 +324,20 @@ export default {
     //根据ID获取商家信息
     getMchinfo(id) {
       get_mch_info({id: id}).then(res => {
+        let order = this.barList[this.selBarIdx].order//保存之前order
+        let id = this.barList[this.selBarIdx].id//保存之前id
         if (res.data) {
-          this.$set(this.barList,this.selBarIdx, res.data)
+          let form = {
+            address : res.data.address,
+            mid: res.data.id,
+            img: res.data.img,
+            name: res.data.name,
+            times: res.data.times,
+            type: res.data.type,
+            id:  id,
+            order: order
+          }
+          this.$set(this.barList,this.selBarIdx, form)
         }
       }).catch(error => {})
     }
@@ -408,6 +424,7 @@ export default {
   .bar-item {
     background-color: rgba(248, 248, 251, 1);
     width:367px;
+    height: 278px;
     margin-right: 20px;
     display: flex;
     align-items: center;
