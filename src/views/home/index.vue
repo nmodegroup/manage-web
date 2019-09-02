@@ -384,6 +384,8 @@ export default {
   }
   .banner-add{
     cursor: pointer;
+    width:368px;
+    text-align: center;
   } 
   .banner-btn-frame{
     padding-top:7px;
