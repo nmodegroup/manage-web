@@ -94,6 +94,7 @@ export default {
       this.query.endTime = ''
       this.query.pageNum = 1
       this.startRow = 1
+      this.timeArr = []
       this.getActivityList()
     },
     //清空日历

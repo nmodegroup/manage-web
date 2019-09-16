@@ -351,6 +351,7 @@ export default {
       this.query.auditStatus = -1
       this.query.pageNum = 1
       this.startRow = 1
+      this.timeArr = []
       this.getAuthList()
     },
     //获取封面图

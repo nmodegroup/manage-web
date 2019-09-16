@@ -198,6 +198,7 @@ export default {
       this.query.status = -1
       this.query.pageNum = 1
       this.startRow = 1
+      this.timeArr = []
       this.getPlacelist()
     }
   },

@@ -264,6 +264,7 @@ export default {
       this.query.userStatus = -1
       this.query.pageNum = 1
       this.startRow = 1
+      this.timeArr = []
       this.getAccountList()
     }
   },
