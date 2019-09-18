@@ -34,7 +34,8 @@
       <div class="bartender-frame">
         <div class="bartender-item" v-for="(bartender, idx) in bartenderList" :key="idx">
           <img :src="staticURL(bartender.img)" alt="">
-          <p>{{bartender.desc}}</p>
+          <div>姓名：{{bartender.chName}}({{bartender.enName}})</div>
+          <p>简介：{{bartender.desc}}</p>
         </div>
       </div>
       <div slot="footer"></div>
@@ -414,7 +415,7 @@ export default {
   }
   .bartender-frame {
     overflow-x: scroll;
-    height: 500px;
+    min-height: 500px;
     display: flex;
   }
   .bartender-item{
@@ -430,6 +431,12 @@ export default {
   .bartender-item p{
     padding-top: 10px;
     width:200px;
+    line-height: 20px;
+    font-size: 12px;
+  }
+  .bartender-item div{
+    padding-top: 10px;
+    font-weight: bold;
     line-height: 20px;
     font-size: 12px;
   }
