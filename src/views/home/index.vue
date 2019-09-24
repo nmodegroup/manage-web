@@ -9,7 +9,9 @@
         <Upload :action="action" :headers="headers" :show-upload-list="false"
         :on-success="handleSuccess" :data ="uploadForm"
         :before-upload="handleBeforeUpload"
+        :on-format-error="handleFormatError"
         :disabled="banner.onStatus === 0"
+        :format ="['jpg', 'jpeg']"
         >
           <div class="banner-img-frame">
             <div class="banner-add" v-show="!banner.img">
@@ -217,6 +219,10 @@ export default {
     //上传图片之前
     handleBeforeUpload (res) {
       this.uploadForm.fileName = res.name
+    },
+    //上传文件格式错误提示
+    handleFormatError(file){
+      this.$Message.warning('文件 ' + file.name + ' 格式不正确，请上传.jpg或者.jpeg文件。')
     },
     //获取商家列表
     getMchList () {
