@@ -15,8 +15,8 @@
           <div class="info-header-bar">
             <div calss="info-title">{{info.name}}</div>
           </div>
-          <div class="info-body" v-for="(item, index) in info.tables" :key="index">
-            <div class="info-grid" >
+          <div class="info-body">
+            <div class="info-grid" v-for="(item, index) in info.tables" :key="index">
               <div>{{item.name}}</div>
               <div>{{item.num}}人</div>
             </div>
