@@ -335,7 +335,8 @@ export default {
             times: res.data.times,
             type: res.data.type,
             id:  id,
-            order: order
+            order: order,
+            onStatus: 1
           }
           this.$set(this.barList,this.selBarIdx, form)
         }
