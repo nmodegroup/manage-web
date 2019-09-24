@@ -40,6 +40,11 @@
       </div>
       <div slot="footer"></div>
     </Modal>
+    <!-- 查看logo -->
+    <Modal :title="imgTitile" v-model="visible">
+      <img :src="staticURL(imgSrc)" v-if="visible" style="width: 100%">
+      <div slot="footer"></div>
+    </Modal>
   </div>
 </template>
 <script>
@@ -57,6 +62,8 @@ export default {
         endTime: '',//认证日期结束时间
         id: this.$route.params.id
       },
+      visible: false,//查看logo
+      imgTitile: '',//查看logo标题
       startRow: 1, // 当前页面
       list: [],//认证列表
       timeArr: [],
@@ -151,6 +158,11 @@ export default {
                 attrs: {
                   src: this.staticURL(params.row.logo),
                   style: 'width:100%;padding:5px;'
+                },
+                 on: {
+                  click: () => {
+                    this.lookBigImg(params.row.logo, params.row.name)
+                  }
                 }
               })
             }
@@ -358,17 +370,21 @@ export default {
     //获取封面图
     getCover(data) {
       get_cover(data).then(res  => {
-        console.log(res.data)
         this.coverImgList = res.data
       }).catch(error => {
 
       })
     },
+    //查看大图
+    lookBigImg (imgUrl, title) {
+      this.imgSrc = imgUrl;
+      this.imgTitile = title;
+      this.visible = true;
+    },
     //获取调酒师信息
     getBartender(data) {
       get_bartender(data).then(res => {
         this.bartenderList = res.data
-        console.log(res.data)
       }).catch(error => {
 
       })

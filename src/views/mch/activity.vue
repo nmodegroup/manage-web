@@ -306,11 +306,11 @@ export default {
                 },
                 style: {
                   "margin-right": "5px",
-                  'color': params.row.auditStatus != 1 ? 'gray' : ''
+                  'color': params.row.shelvesStatus == 1 ? 'gray' : ''
                 },
                 on: {
                   click: () => {
-                    if (params.row.auditStatus != 1) {
+                    if (params.row.shelvesStatus == 1) {
                       return
                     }
                     this.$Modal.confirm({
