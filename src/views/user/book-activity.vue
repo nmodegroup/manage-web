@@ -4,7 +4,7 @@
         <Input v-model="query.queryStr" placeholder="输入用户手机号/活动主题/酒吧名称" search style="width:200px;"/>
         <span class="seach-lable">预定日期：</span>
         <DatePicker type="daterange" placement="bottom-end"
-        placeholder="请选择注册日期" style="width: 200px"
+        placeholder="请选择预定日期" style="width: 200px"
         v-model="timeArr" @on-clear='clear_change' @on-change='date_change'></DatePicker>
         <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
         <Button  @click="onReset">重置</Button>

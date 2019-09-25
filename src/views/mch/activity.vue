@@ -4,7 +4,7 @@
       <Input v-model="query.queryStr" placeholder="输入商家名称/手机号搜" search style="width:200px;"/>
       <span class="seach-lable">认证日期：</span>
       <DatePicker type="daterange" placement="bottom-end"
-        placeholder="请选择注册日期" style="width: 200px"
+        placeholder="请选择认证日期" style="width: 200px"
         v-model="timeArr" @on-clear='clear_change' @on-change='date_change'></DatePicker>
       <span class="seach-lable">审核状态：</span>
       <Select style="width:100px" v-model="query.auditStatus">
@@ -154,8 +154,11 @@ export default {
           },
           {
             title: '开放预定名额',
-            key: 'quota',
-            width:120
+            width:120,
+            render: (h,params) => {
+              let  text = params.row.quota == -1 ? '不限' : params.row.quota
+              return h('div', text)
+            }
           },
           {
             title: '活动宣传图',
