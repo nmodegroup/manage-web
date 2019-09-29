@@ -108,8 +108,13 @@ export default {
             key: 'arriveTime'
           },
           {
-            title: '座位类型',
-            key: 'tableAreaName'
+            title: '桌位类型',
+            key: 'tableAreaName',
+            render: (h,params) => {
+              let text  = `${params.row.tableAreaName}>${params.row.tableNum}人`
+              
+              return h('div', text)
+            }
           },
           {
             title: '是否到店',

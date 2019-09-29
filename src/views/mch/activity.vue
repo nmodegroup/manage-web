@@ -164,17 +164,13 @@ export default {
             title: '活动宣传图',
             width:130,
             render: (h,params) => {
-              return h('img',{
-                attrs: {
-                  src: this.staticURL(params.row.post),
-                  style: 'width:100%;padding:5px;'
-                },
+              return h('a',{
                  on: {
                   click: () => {
                     this.lookBigImg(params.row.post, params.row.nickName)
                   }
                 }
-              })
+              }, '点击查看大图')
             }
           },
           {

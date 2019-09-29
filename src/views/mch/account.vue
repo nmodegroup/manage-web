@@ -92,7 +92,7 @@ export default {
               let  text = ''
               switch (params.row.type) {
                 case 0:
-                  text = '其他'
+                  text = '闹吧'
                   break
                 case 1:
                   text = '餐吧'

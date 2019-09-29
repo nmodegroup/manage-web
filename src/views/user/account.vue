@@ -105,7 +105,7 @@ export default {
                       sessionStorage.setItem('menuItemText', '活动预订')
                       this.$emit('listenToChildEvent')
                     }
-                  }}, '桌位预订信息')])
+                  }}, '活动预订信息')])
               }
           },
           {
