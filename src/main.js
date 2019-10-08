@@ -4,6 +4,7 @@ import router from './router'
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
 import '../static/css/common.css'
+import constant from './constant.js'
 Vue.use(iView)
 // 路由跳转公用方法
 Vue.prototype.$goto = function (name, query, params) {
@@ -19,7 +20,7 @@ Vue.prototype.$goto = function (name, query, params) {
 }
 Vue.prototype.staticURL = function (path) {
   if (path) {
-    return  'https://dev.api.nightmodeplus.com/source/' + path
+    return  constant + path
   }
 }
 /* eslint-disable no-new */

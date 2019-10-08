@@ -384,13 +384,13 @@ export default {
     },
     //清空日历
     clear_change() {
-      this.query.beginDate = '';
-      this.query.endDate = '';
+      this.query.beginTime = '';
+      this.query.endTime = '';
     },
     //日历改变
     date_change(date) {
-      this.query.beginDate = date[0]
-      this.query.endDate = date[1]
+      this.query.beginTime = date[0]
+      this.query.endTime = date[1]
     }
   },
   mounted () {
