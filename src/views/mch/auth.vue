@@ -343,6 +343,7 @@ export default {
     merchantAudit(data) {
       merchant_audit(data).then(res => {
         this.query.pageNum = 1
+        this.startRow = 1
         this.getAuthList()
       }).catch(error => {
 

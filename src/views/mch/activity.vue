@@ -344,6 +344,7 @@ export default {
     merchantActivityAudit (data) {
       merchant_activity_audit(data).then(res => {
         this.query.pageNum = 1
+        this.startRow = 1
         this.getActivityList()
       }).catch(error => {
 
