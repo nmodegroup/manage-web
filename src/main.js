@@ -5,6 +5,9 @@ import iView from 'iview';
 import 'iview/dist/styles/iview.css';
 import '../static/css/common.css'
 import constant from './constant.js'
+iView.Message.config({
+  duration: 3
+});
 Vue.use(iView)
 // 路由跳转公用方法
 Vue.prototype.$goto = function (name, query, params) {
