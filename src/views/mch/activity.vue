@@ -153,6 +153,11 @@ export default {
             width:130
           },
           {
+            title: '活动费用',
+            key: 'cost',
+            width:130
+          },
+          {
             title: '开放预定名额',
             width:120,
             render: (h,params) => {
