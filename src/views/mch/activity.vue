@@ -154,8 +154,12 @@ export default {
           },
           {
             title: '活动费用',
-            key: 'cost',
-            width:130
+            key: 'charges',
+            width:130,
+            render: (h,params) => {
+              let  text = params.row.isCharge == 1 ? params.row.charges : '免费'
+              return h('div', text)
+            }
           },
           {
             title: '开放预定名额',
