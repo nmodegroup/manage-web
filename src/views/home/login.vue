@@ -36,6 +36,7 @@ export default {
       } else {
         login(this.form).then(res => {
           localStorage.setItem("token", res.data)
+          sessionStorage.clear()
           this.$goto('UserAccount')
         })
       }
