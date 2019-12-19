@@ -303,9 +303,11 @@ export default {
     onSaveBanner(idx) {
       if (!this.bannerList[idx].img) {
         this.$Message.warning('请上传图片')
-      } else if (!this.bannerList[idx].objId) {
-        this.$Message.warning('请选择banner跳转连接')
-      } else {
+      } 
+      // else if (!this.bannerList[idx].objId) {
+      //   this.$Message.warning('请选择banner跳转连接')
+      // } 
+      else {
         update_banner(this.bannerList[idx]).then(res => {
           this.$Message.success('banner图保存成功')
           this.getHomePage()
