@@ -215,6 +215,9 @@ export default {
     //上传图片成功回调
     handleSuccess ( res, file, fileList) {
       this.bannerList[this.selBannerIdx].img = res.data
+      this.bannerList[this.selBannerIdx].name = "";
+      this.bannerList[this.selBannerIdx].objId = "";
+      this.bannerList[this.selBannerIdx].type = "";
     },
     //上传图片之前
     handleBeforeUpload (res) {
