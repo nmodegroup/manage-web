@@ -12,6 +12,7 @@
       </Select>
       <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
       <Button  @click="onReset">重置</Button>
+      <Button type="primary" style="margin-left:20px;" @click="onSetDefaultRate">修改默认结算比例</Button>
     </div>
     <Table stripe :columns="columns1" :data="list" height="450"></Table>
     <div style="padding-top:30px;text-align:center;">
@@ -45,11 +46,67 @@
       <img :src="staticURL(imgSrc)" v-if="visible" style="width: 100%">
       <div slot="footer"></div>
     </Modal>
+    <!-- 调整结算比例 -->
+    <Modal
+      v-model="visibleShow.manualSetShow"
+      title="调整结算比例"
+      :closable="false"
+      cancel-text="暂不修改"
+      ok-text="修改并保存"
+      @on-ok="manualSetYes"
+      @on-cancel="manualSetCancel">
+      <p>平台设置的默认结算比例为平台：{{ defaultRate.platformRate }}%，商家：{{ defaultRate.merchantRate }}%；</p>
+      <p>您可将此商家还原成默认比例,<a href="javascript:void(0)" style="margin-left: 10px;" @click="restoreRate">立即还原</a></p>
+      <p>或自定义结算比例</p>
+       <i-form label-position="left" :label-width="80">
+         <Form-item label="当前商家：">
+            {{ curShop.name }}
+        </Form-item>
+        <Form-item label="商家收益：">
+          <Row>
+            <i-col span="18">
+              <Input type="number" v-model="manualInput.input1" placeholder="例如占80" />
+            </i-col>
+            <i-col span="4" offset="1">%</i-col>
+          </Row>
+        </Form-item>
+      </i-form>
+      <AccountTips/>
+    </Modal>
+    <!-- 设置，修改默认结算比例 -->
+    <Modal
+      v-model="visibleShow.defaultSetShow"
+      :title="defalutSetInfo[defalutSetIndex].title"
+      :closable="false"
+      :cancel-text="defalutSetInfo[defalutSetIndex].cancelText"
+      :ok-text="defalutSetInfo[defalutSetIndex].okText"
+      @on-ok="defalutSetYes"
+      @on-cancel="defalutSetCancel">
+      <i-form label-position="left" :label-width="80">
+        <Form-item label="商家收益：">
+          <Row>
+            <i-col span="18">
+                <Input type="number" v-model="defaultInput.input1" placeholder="例如占80" />
+            </i-col>
+            <i-col span="4" offset="1">%</i-col>
+          </Row>
+        </Form-item>
+      </i-form>
+      <AccountTips/>
+    </Modal>
   </div>
 </template>
 <script>
-import {get_auth_list, merchant_audit,
-get_cover, get_bartender} from "@/api/mch"
+import {
+  get_auth_list, 
+  merchant_audit,
+  get_cover, 
+  get_bartender,
+  modification_default_rate,
+  modification_manual_rate,
+  get_default_rate,
+  post_restore_rate } from "@/api/mch"
+import AccountTips from "@/components/AccountTips"
 export default {
   data () {
     return {
@@ -78,6 +135,42 @@ export default {
       //调酒师bartender
       bartenderList: [],
       bartenderVisible: false,
+      // 结算比例
+      defaultRate: {
+        merchantRate: 0,
+        platformRate: 0
+      },
+      visibleShow: {
+        manualSetShow: false,
+        defaultSetShow: false
+      },
+      manualInput: {
+        input1: ""
+      },
+      curShop: {
+        id: "",
+        name: ""
+      },
+      defalutSetInfo: [
+        { 
+          title: "设置默认结算比例",
+          cancelText: "暂不设置",
+          okText: "设置并使用",
+          twoTitle: "设置确认",
+          content: "确定按照该默认比例与商家进行结算吗？设置后系统在结算时将按照此比例进行拆分付款！"
+        },
+        { 
+          title: "修改默认结算比例",
+          cancelText: "暂不修改",
+          okText: "修改并使用",
+          twoTitle: "修改确认",
+          content: "确定修改默认比例与商家进行结算吗？设置后系统在结算时将按照此比例进行拆分付款！"
+        }
+      ],
+      defalutSetIndex: 1,
+      defaultInput: {
+        input1: ""
+      },
       auditStatusList: [
         {
           label: '全部',
@@ -233,6 +326,20 @@ export default {
             }
           },
           {
+            title: '结算比例',
+            width: 100,
+            key: 'rate',
+            render: (h, params) => {
+              const shopRate = params.row.rate;
+              let terraceRate = 100 - shopRate;
+              terraceRate = terraceRate >= 0?terraceRate: 0;
+              return ('div', [
+                h('p', `平台：${terraceRate}%`),
+                h('p', `商家：${shopRate}%`)
+              ])
+            }
+          },
+          {
             title: '审核状态',
             width:100,
             render: (h,params) => {
@@ -253,7 +360,7 @@ export default {
           },
           {
               title: '操作',
-              width:200,
+              width: 260,
               render: (h,params) => {
               return h('div', [
               h('a', {
@@ -323,7 +430,19 @@ export default {
                       onCancel: () => this.reason = '' // 取消按钮清空不通过原因
                     });
                   }
-                }}, '审核不通过')
+                }}, '审核不通过'),
+                h('a', {
+                  props: {
+                    href: "javascript:void(0)"
+                  },
+                  on: {
+                    click: () => {
+                      this.curShop.id = params.row.id;
+                      this.curShop.name = params.row.name;
+                      this.visibleShow.manualSetShow = true;
+                    }
+                  }
+                }, '调整结算比例')
               ])
             }
           },
@@ -405,16 +524,94 @@ export default {
     date_change(date) {
       this.query.beginTime = date[0]
       this.query.beginTime = date[1]
+    },
+    // 调整结算比例
+    manualSetYes(){
+      this.$Modal.confirm({
+      title: '调整确认',
+      content: '<p>确定自定义该商家的结算比例吗？调整后系统在结算时将按照此比例向该商家进行拆分付款！</p>',
+        onOk: () => {
+          this.modificationManualRate({ mid: this.curShop.id, rate: this.manualInput.input1 })
+        },
+        onCancel: () => {
+        }
+    });
+    },
+    manualSetCancel(){
+    },
+    restoreRate(){
+      this.postRestoreRate({
+        mid: this.curShop.id
+      })
+    },
+    // 设置，修改默认比例
+    onSetDefaultRate(){
+      this.visibleShow.defaultSetShow = true;
+    },
+    defalutSetYes(){
+      this.$Modal.confirm({
+        title: this.defalutSetInfo[this.defalutSetIndex].twoTitle,
+        content: '<p>'+ this.defalutSetInfo[this.defalutSetIndex].content + '</p>',
+         onOk: () => {
+           this.modificationDefaultRate({ rate: this.defaultInput.input1 })
+          },
+          onCancel: () => {
+          }
+      });
+    },
+    defalutSetCancel(){
+    },
+    modificationDefaultRate(data){
+      modification_default_rate(data).then( res => {
+        const tips = this.defalutSetIndex === 0 ? "设置成功" : "修改成功";
+        this.getAuthList()
+        this.getDefaultRate()
+        this.$Message.success(tips);
+      }).catch( err => {
+        console.error(err)
+      })
+    },
+    modificationManualRate(data){
+      modification_manual_rate(data).then( res => {
+        this.getAuthList()
+        this.$Message.success('修改成功');
+      }).catch( err => {
+        console.error(err)
+      })
+    },
+    getDefaultRate(){
+      get_default_rate().then( res => {
+        console.log(res)
+        const data = res.data;
+        this.defaultRate.merchantRate = data.merchantRate;
+        this.defaultRate.platformRate = data.platformRate;
+      }).catch( err => {
+        console.error(err)
+      }) 
+    },
+    postRestoreRate(data){
+      post_restore_rate(data).then( res => {
+        this.getAuthList();
+        this.visibleShow.manualSetShow = false;
+        this.$Message.success('修改成功');
+      }).catch( err => {
+        console.error(err)
+      }) 
     }
+    
   },
   mounted () {
-    this.getAuthList()
+    this.getAuthList();
+    this.getDefaultRate()
   },
   beforeCreate () {
   },
   created () {
   },
   activated () {
+  },
+  components: {
+    AccountTips
   }
 }
 </script>

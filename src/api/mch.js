@@ -100,3 +100,63 @@ export function get_table_info (data) {//获取桌位图
     }
   })
 }
+
+export function  modification_default_rate(data) {//修改默认比例
+  return request({
+    url: '/web/default/rate' + requestParams.generateParams(data),
+    method: 'put',
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    }
+  })
+}
+
+export function  modification_manual_rate(data) {//修改单个店铺比例
+  return request({
+    url: '/web/bar/rate' + requestParams.generateParams(data),
+    method: 'put',
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    }
+  })
+}
+
+export function get_default_rate (data) {//获取店铺默认比例
+  return request({
+    url: '/web/default/rate' + requestParams.generateParams(data),
+    method: 'get',
+    headers: {
+      'Content-type': 'application/json'
+    }
+  })
+}
+
+export function post_restore_rate (data) {//还原店铺比例
+  return request({
+    url: '/web/bar/rate' + requestParams.generateParams(data),
+    method: 'post',
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    }
+  })
+}
+
+export function get_extract_record (data) {//获取店铺默认比例
+  return request({
+    url: '/web/extract/page' + requestParams.generateParams(data),
+    method: 'get',
+    headers: {
+      'Content-type': 'application/json'
+    }
+  })
+}
+
+export function  audit_extract_state(data) {//修改单个店铺比例
+  return request({
+    url: '/web/extract/audit' + requestParams.generateParams(data),
+    method: 'put',
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    }
+  })
+}
