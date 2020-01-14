@@ -64,7 +64,7 @@ export default {
                 {
                     title: '提现日期',
                     key: 'extractTime',
-                    width: 140
+                    width: 150
                 },
                  {
                     title: '提现人头像',
@@ -73,7 +73,7 @@ export default {
                     render: (h,params) => {
                         return h('img',{
                             attrs: {
-                                src: this.staticURL(params.row.img),
+                                src: params.row.img,
                                 style: 'width:100%; padding:5px;'
                             },
                         })
@@ -82,12 +82,10 @@ export default {
                  {
                     title: '提现人昵称',
                     key: 'nickName',
-                    width: 100
                 },
                  {
                     title: '商家名称',
                     key: 'shopName',
-                    width: 100
                 },
                  {
                     title: '商家电话',
@@ -97,17 +95,17 @@ export default {
                  {
                     title: '账户余额',
                     key: 'balance',
-                    width: 100
+                    width: 120
                 },
                  {
                     title: '提现金额',
                     key: 'amount',
-                    width: 100
+                    width: 120
                 },
                  {
                     title: '收款账户',
                     key: 'payeeType',
-                    width: 100,
+                    width: 130,
                     render: (h, params) => {
                         let tip = ""
                         if (params.row.payeeType == 1) {
@@ -126,7 +124,7 @@ export default {
                 {
                     title: '提现状态',
                     key: 'status',
-                    width: 100,
+                    width: 130,
                     render: (h, params) => {
                         let  tip = ''
                         switch (params.row.status) {

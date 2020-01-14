@@ -94,6 +94,23 @@
       </i-form>
       <AccountTips/>
     </Modal>
+    <!-- 比例修改记录 -->
+    <Modal
+      v-model="visibleShow.setRecordShow"
+      title="比例修改记录"
+      closable
+      ok-text="我知道了"
+      >
+      <div class="recored-block">
+        <Table 
+         :show-header="false"
+         :stripe="false"
+         :columns="columnsSub" 
+         :data="recordList"
+         max-height="500"
+        />
+      </div>
+    </Modal>
   </div>
 </template>
 <script>
@@ -105,7 +122,8 @@ import {
   modification_default_rate,
   modification_manual_rate,
   get_default_rate,
-  post_restore_rate } from "@/api/mch"
+  post_restore_rate,
+  get_rate_record } from "@/api/mch"
 import AccountTips from "@/components/AccountTips"
 export default {
   data () {
@@ -142,7 +160,8 @@ export default {
       },
       visibleShow: {
         manualSetShow: false,
-        defaultSetShow: false
+        defaultSetShow: false,
+        setRecordShow: false
       },
       manualInput: {
         input1: ""
@@ -188,7 +207,18 @@ export default {
           label: '审核未通过',
           value: 2
         }],
-      columns1: [
+        columnsSub: [
+          {
+            title: '修改时间',
+            key: 'createTime'
+          },
+          {
+            title: '修改比例',
+            key: 'rate'
+          },
+       ],
+        recordList: [],
+        columns1: [
           {
             title: '微信昵称',
             key: 'nickName',
@@ -330,12 +360,20 @@ export default {
             width: 100,
             key: 'rate',
             render: (h, params) => {
-              const shopRate = params.row.rate;
-              let terraceRate = 100 - shopRate;
-              terraceRate = terraceRate >= 0?terraceRate: 0;
+              let terraceRate = "", shopRate = "";
+              if (params.row.rate) {
+                  shopRate = params.row.rate;
+                  terraceRate = 100 - shopRate;
+                  terraceRate = terraceRate >= 0?terraceRate: 0;
+                  terraceRate = `平台：${terraceRate}%`;
+                  shopRate = `商家：${shopRate}%`;
+              } else {
+                terraceRate = "平台：--";
+                shopRate = "商家：--"
+              }
               return ('div', [
-                h('p', `平台：${terraceRate}%`),
-                h('p', `商家：${shopRate}%`)
+                h('p', terraceRate),
+                h('p', shopRate)
               ])
             }
           },
@@ -360,7 +398,7 @@ export default {
           },
           {
               title: '操作',
-              width: 260,
+              width: 320,
               render: (h,params) => {
               return h('div', [
               h('a', {
@@ -435,6 +473,9 @@ export default {
                   props: {
                     href: "javascript:void(0)"
                   },
+                  style: {
+                     "margin-right": "5px"
+                  },
                   on: {
                     click: () => {
                       this.curShop.id = params.row.id;
@@ -442,7 +483,21 @@ export default {
                       this.visibleShow.manualSetShow = true;
                     }
                   }
-                }, '调整结算比例')
+                }, '调整结算比例'),
+                h('a', {
+                  props: {
+                    href: "javascript:void(0)"
+                  },
+                  on: {
+                    click: () => {
+                      this.visibleShow.setRecordShow = true;
+                      this.curShop.id = params.row.id;
+                      this.getRateRecord({
+                        mid: this.curShop.id
+                      })
+                    }
+                  }
+                }, '比例修改记录')
               ])
             }
           },
@@ -527,6 +582,10 @@ export default {
     },
     // 调整结算比例
     manualSetYes(){
+      if (this.manualInput.input1 > 100 || this.manualInput.input1 <= 0 || this.manualInput.input1 == "") {
+        this.$Message.warning("请设置合理的比例");
+        return
+      }
       this.$Modal.confirm({
       title: '调整确认',
       content: '<p>确定自定义该商家的结算比例吗？调整后系统在结算时将按照此比例向该商家进行拆分付款！</p>',
@@ -534,10 +593,12 @@ export default {
           this.modificationManualRate({ mid: this.curShop.id, rate: this.manualInput.input1 })
         },
         onCancel: () => {
+          this.manualInput.input1 = ""
         }
     });
     },
     manualSetCancel(){
+      this.manualInput.input1 = ""
     },
     restoreRate(){
       this.postRestoreRate({
@@ -549,6 +610,10 @@ export default {
       this.visibleShow.defaultSetShow = true;
     },
     defalutSetYes(){
+      if (this.defaultInput.input1 > 100 || this.defaultInput.input1 <= 0 || this.defaultInput.input1 == "") {
+        this.$Message.warning("请设置合理的比例");
+        return
+      }
       this.$Modal.confirm({
         title: this.defalutSetInfo[this.defalutSetIndex].twoTitle,
         content: '<p>'+ this.defalutSetInfo[this.defalutSetIndex].content + '</p>',
@@ -556,10 +621,12 @@ export default {
            this.modificationDefaultRate({ rate: this.defaultInput.input1 })
           },
           onCancel: () => {
+            this.defaultInput.input1 = "";
           }
       });
     },
     defalutSetCancel(){
+      this.defaultInput.input1 = "";
     },
     modificationDefaultRate(data){
       modification_default_rate(data).then( res => {
@@ -594,6 +661,17 @@ export default {
         this.getAuthList();
         this.visibleShow.manualSetShow = false;
         this.$Message.success('修改成功');
+      }).catch( err => {
+        console.error(err)
+      }) 
+    },
+    getRateRecord(data){
+      get_rate_record(data).then( res => {
+        console.log(res)
+        res.data.map( item => {
+          item.rate = "修改比例为：" + item.rate + "%"
+        })
+        this.recordList = res.data
       }).catch( err => {
         console.error(err)
       }) 
@@ -653,5 +731,8 @@ export default {
     font-weight: bold;
     line-height: 20px;
     font-size: 12px;
+  }
+  .recored-block {
+    min-height: 150px;
   }
 </style>
