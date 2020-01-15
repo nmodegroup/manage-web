@@ -118,7 +118,7 @@ export default {
                 },
                  {
                     title: '到账日期',
-                    key: 'extractTime',
+                    key: 'accountTime',
                     width: 140
                 },
                 {

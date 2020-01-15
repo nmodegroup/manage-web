@@ -357,7 +357,7 @@ export default {
           },
           {
             title: '结算比例',
-            width: 100,
+            width: 130,
             key: 'rate',
             render: (h, params) => {
               let terraceRate = "", shopRate = "";
@@ -365,8 +365,8 @@ export default {
                   shopRate = params.row.rate;
                   terraceRate = 100 - shopRate;
                   terraceRate = terraceRate >= 0?terraceRate: 0;
-                  terraceRate = `平台：${terraceRate}%`;
-                  shopRate = `商家：${shopRate}%`;
+                  terraceRate = `平台：${parseFloat(terraceRate).toFixed(2)}%`;
+                  shopRate = `商家：${parseFloat(shopRate).toFixed(2)}%`;
               } else {
                 terraceRate = "平台：--";
                 shopRate = "商家：--"
@@ -474,12 +474,17 @@ export default {
                     href: "javascript:void(0)"
                   },
                   style: {
-                     "margin-right": "5px"
+                     "margin-right": "5px",
+                     'color': params.row.auditStatus == 1 ? '' : 'gray'
                   },
                   on: {
                     click: () => {
+                      if ( params.row.auditStatus != 1) return
                       this.curShop.id = params.row.id;
                       this.curShop.name = params.row.name;
+                       if (params.row.rate) {
+                         this.manualInput.input1 = params.row.rate;
+                      } 
                       this.visibleShow.manualSetShow = true;
                     }
                   }
@@ -587,27 +592,36 @@ export default {
         return
       }
       this.$Modal.confirm({
-      title: '调整确认',
-      content: '<p>确定自定义该商家的结算比例吗？调整后系统在结算时将按照此比例向该商家进行拆分付款！</p>',
-        onOk: () => {
-          this.modificationManualRate({ mid: this.curShop.id, rate: this.manualInput.input1 })
-        },
-        onCancel: () => {
-          this.manualInput.input1 = ""
-        }
-    });
+        title: '调整确认',
+        content: '<p>确定自定义该商家的结算比例吗？调整后系统在结算时将按照此比例向该商家进行拆分付款！</p>',
+          onOk: () => {
+            this.modificationManualRate({ mid: this.curShop.id, rate: this.manualInput.input1 })
+          },
+          onCancel: () => {
+            this.manualInput.input1 = ""
+          }
+      });
     },
     manualSetCancel(){
       this.manualInput.input1 = ""
     },
     restoreRate(){
-      this.postRestoreRate({
-        mid: this.curShop.id
-      })
+       this.$Modal.confirm({
+        title: '还原确认',
+        content: '<p>确定将该自定义的商家结算比例还原为平台默认比例吗？还原后系统在结算时将按照此比例进行拆分付款！</p>',
+          onOk: () => {
+            this.postRestoreRate({
+              mid: this.curShop.id
+            })  
+          },
+          onCancel: () => {
+          }
+      });
     },
     // 设置，修改默认比例
     onSetDefaultRate(){
       this.visibleShow.defaultSetShow = true;
+      this.getDefaultRate()
     },
     defalutSetYes(){
       if (this.defaultInput.input1 > 100 || this.defaultInput.input1 <= 0 || this.defaultInput.input1 == "") {
@@ -652,6 +666,7 @@ export default {
         const data = res.data;
         this.defaultRate.merchantRate = data.merchantRate;
         this.defaultRate.platformRate = data.platformRate;
+        this.defaultInput.input1 = this.defaultRate.merchantRate;
       }).catch( err => {
         console.error(err)
       }) 
