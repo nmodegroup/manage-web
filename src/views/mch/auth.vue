@@ -13,6 +13,7 @@
       <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
       <Button  @click="onReset">重置</Button>
       <Button type="primary" style="margin-left:20px;" @click="onSetDefaultRate">修改默认结算比例</Button>
+      <Button type="primary" style="margin-left:20px;" @click="onModificationRecode">比例修改记录</Button>
     </div>
     <Table stripe :columns="columns1" :data="list" height="450"></Table>
     <div style="padding-top:30px;text-align:center;">
@@ -123,7 +124,8 @@ import {
   modification_manual_rate,
   get_default_rate,
   post_restore_rate,
-  get_rate_record } from "@/api/mch"
+  get_rate_record,
+  get_default_rate_record } from "@/api/mch"
 import AccountTips from "@/components/AccountTips"
 export default {
   data () {
@@ -642,6 +644,11 @@ export default {
     defalutSetCancel(){
       this.defaultInput.input1 = "";
     },
+    // 查看默认比例修改记录
+    onModificationRecode(){
+      this.getDefaultRateRecord()
+      this.visibleShow.setRecordShow = true;
+    },
     modificationDefaultRate(data){
       modification_default_rate(data).then( res => {
         const tips = this.defalutSetIndex === 0 ? "设置成功" : "修改成功";
@@ -690,8 +697,17 @@ export default {
       }).catch( err => {
         console.error(err)
       }) 
+    },
+    getDefaultRateRecord(){
+      get_default_rate_record().then( res => {
+        res.data.map( item => {
+          item.rate = "修改比例为：" + item.rate + "%"
+        })
+        this.recordList = res.data
+      }).catch( err => {
+        console.error(err)
+      }) 
     }
-    
   },
   mounted () {
     this.getAuthList();

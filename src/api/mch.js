@@ -170,3 +170,13 @@ export function get_rate_record (data) {//获取店铺修改比例记录
     }
   })
 }
+
+export function get_default_rate_record (data) {//获取店铺修改比例记录
+  return request({
+    url: '/web/default/rates' + requestParams.generateParams(data),
+    method: 'get',
+    headers: {
+      'Content-type': 'application/json'
+    }
+  })
+}
