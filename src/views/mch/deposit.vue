@@ -275,7 +275,7 @@ export default {
             get_extract_record(this.query).then( res => {
                 const data = res.data
                 this.list = data.list;
-                this.dataCount = data.totalNum;
+                this.dataCount = data.totalSize;
             }).catch( err => {
                 console.error(err)
             })
