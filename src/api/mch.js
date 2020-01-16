@@ -160,3 +160,23 @@ export function  audit_extract_state(data) {//修改单个店铺比例
     }
   })
 }
+
+export function get_rate_record (data) {//获取店铺修改比例记录
+  return request({
+    url: '/web/bar/rates' + requestParams.generateParams(data),
+    method: 'get',
+    headers: {
+      'Content-type': 'application/json'
+    }
+  })
+}
+
+export function get_default_rate_record (data) {//获取店铺修改比例记录
+  return request({
+    url: '/web/default/rates' + requestParams.generateParams(data),
+    method: 'get',
+    headers: {
+      'Content-type': 'application/json'
+    }
+  })
+}
