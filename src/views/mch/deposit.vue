@@ -64,12 +64,12 @@ export default {
                 {
                     title: '提现日期',
                     key: 'extractTime',
-                    width: 150
+                    // width: 150
                 },
                  {
                     title: '提现人头像',
                     key: 'img',
-                    width: 100,
+                    // width: 100,
                     render: (h,params) => {
                         return h('img',{
                             attrs: {
@@ -90,22 +90,22 @@ export default {
                  {
                     title: '商家电话',
                     key: 'phone',
-                    width: 120
+                    // width: 120
                 },
                  {
                     title: '账户余额',
                     key: 'balance',
-                    width: 120
+                    // width: 120
                 },
                  {
                     title: '提现金额',
                     key: 'amount',
-                    width: 120
+                    // width: 120
                 },
                  {
                     title: '收款账户',
                     key: 'payeeType',
-                    width: 130,
+                    // width: 130,
                     render: (h, params) => {
                         let tip = ""
                         if (params.row.payeeType == 1) {
@@ -119,12 +119,12 @@ export default {
                  {
                     title: '到账日期',
                     key: 'accountTime',
-                    width: 140
+                    // width: 140
                 },
                 {
                     title: '提现状态',
                     key: 'status',
-                    width: 130,
+                    // width: 130,
                     render: (h, params) => {
                         let  tip = ''
                         switch (params.row.status) {
@@ -149,7 +149,7 @@ export default {
                 },
                 {
                     title: '操作',
-                    width: 180,
+                    // width: 180,
                     render: (h, params) => {
                         return h('div', [
                             h('a', {
