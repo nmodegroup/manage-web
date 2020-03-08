@@ -26,6 +26,7 @@
             <MenuItem name="商家管理, 活动管理" to="/mch/activity">活动管理</MenuItem>
             <MenuItem name="商家管理, 桌位管理" to="/mch/place">桌位管理</MenuItem>
             <MenuItem name="商家管理, 提现管理" to="/mch/deposit">提现管理</MenuItem>
+            <MenuItem name="商家管理, 背景审核" to="/mch/backdrop">背景审核</MenuItem>
             </Submenu>
           <Submenu name="平台管理">
             <template slot="title">

@@ -180,3 +180,23 @@ export function get_default_rate_record (data) {//获取店铺修改比例记录
     }
   })
 }
+
+export function get_code_back (data) {//获取店铺修改比例记录
+  return request({
+    url: '/web/codeback/list' + requestParams.generateParams(data),
+    method: 'get',
+    headers: {
+      'Content-type': 'application/json'
+    }
+  })
+}
+
+export function  audit_code_back(data) {//背景审核
+  return request({
+    url: '/web/codeback/audit' + requestParams.generateParams(data),
+    method: 'put',
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    }
+  })
+}
