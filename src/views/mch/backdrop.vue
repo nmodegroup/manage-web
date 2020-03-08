@@ -27,17 +27,13 @@ export default {
             query: {
                 pageSize: 10,
                 pageNum: 1,
-                status: -1,
+                status: "",
                 queryStr: "",
                 beginTime: "",
                 endTime: ""
             },
             timeArr: [],
             statusList: [
-                {
-                    label: '不限',
-                    value: -1
-                },
                 {
                     label: '待审核',
                     value: 0
@@ -72,7 +68,7 @@ export default {
                     render: (h,params) => {
                         return h('img',{
                             attrs: {
-                                src: params.row.img,
+                                src: this.staticURL(params.row.img),
                                 style: 'width:100%; padding:5px;'
                             },
                         })
@@ -209,7 +205,7 @@ export default {
             this.query.queryStr = ''
             this.query.beginTime = ''
             this.query.endTime = ''
-            this.query.status = -1
+            this.query.status = ""
             this.query.pageNum = 1
             this.startRow = 1
             this.timeArr = []
