@@ -51,12 +51,10 @@ export default {
                 {
                     title: '提交时间',
                     key: 'createTime',
-                    // width: 150
                 },
                  {
                     title: '商家名称',
                     key: 'name',
-                    // width: 100,
                 },
                  {
                     title: '商家电话',
