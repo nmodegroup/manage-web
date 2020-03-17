@@ -23,7 +23,8 @@ Vue.prototype.$goto = function (name, query, params) {
 }
 Vue.prototype.staticURL = function (path) {
   if (path) {
-    return  constant.globalData.baseURL + '/source/'+ path
+    // return  constant.globalData.baseURL + '/source/'+ path
+    return  constant.globalData.imgUrl+ path
   }
 }
 /* eslint-disable no-new */
