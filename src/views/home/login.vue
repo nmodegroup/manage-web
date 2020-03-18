@@ -12,6 +12,7 @@
         <div class="form-bar">
           <button @click="onLogin">登录</button>
         </div>
+        <p class="tips">博傲信息有限公司 | 粤ICP备19088086号-1</p>
       </div>
     </div>
   </div>
@@ -90,6 +91,10 @@ export default {
     border:none;
     font-size:14px;
     color:rgba(255,255,255,1);
+  }
+  .tips {
+    text-align: center;
+    margin-top: 120px;
   }
 </style>
 
