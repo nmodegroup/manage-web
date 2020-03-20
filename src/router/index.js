@@ -19,7 +19,7 @@ let pages = [
     {path: '/mch/deposit', meta: {title: '提现管理'}, component: resolve => { require(['@/views/mch/deposit'], resolve) }},
     {path: '/mch/backdrop', meta: {title: '背景审核'}, component: resolve => { require(['@/views/mch/backdrop'], resolve) }},
     {path: '/home/index', meta: {title: '首页管理'}, component: resolve => { require(['@/views/home/index'], resolve) }},
-    {path: '/', redirect: '/login'}
+    // {path: '/', redirect: '/login'}
   ]
 // 页面
 pages.forEach(r => {

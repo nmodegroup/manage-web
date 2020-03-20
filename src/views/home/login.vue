@@ -12,7 +12,7 @@
         <div class="form-bar">
           <button @click="onLogin">登录</button>
         </div>
-        <p class="tips">博傲信息有限公司 | 粤ICP备19088086号-1</p>
+        <p class="tips">深圳市博傲信息科技有限公司 | <span @click="onMiit" class="miit-tips">粤ICP备19088086号-1</span></p>
       </div>
     </div>
   </div>
@@ -41,6 +41,9 @@ export default {
           this.$goto('UserAccount')
         })
       }
+    },
+    onMiit(){
+      location.href = "http://www.beian.miit.gov.cn/";
     }
   }
 }
@@ -94,7 +97,11 @@ export default {
   }
   .tips {
     text-align: center;
-    margin-top: 120px;
+    margin-top: 130px;
+  }
+  .miit-tips{
+    color: #007aff;
+    cursor: pointer;
   }
 </style>
 
