@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: kangguimin
+ * @Date: 2020-11-09 16:56:37
+ * @LastEditors: kangguimin
+ * @LastEditTime: 2020-11-09 19:09:39
+ */
 import Vue from 'vue'
 import Router from 'vue-router'
 import hump from '@/libs/hump'
@@ -15,6 +23,7 @@ let pages = [
     {path: '/mch/account', meta: {title: '商家账号管理'}, component: resolve => { require(['@/views/mch/account'], resolve) }},
     {path: '/mch/auth', meta: {title: '商家认证'}, component: resolve => { require(['@/views/mch/auth'], resolve) }},
     {path: '/mch/activity', meta: {title: '活动管理'}, component: resolve => { require(['@/views/mch/activity'], resolve) }},
+    {path: '/mch/activity/addEdit', meta: {title: '新增活动'}, component: resolve => { require(['@/views/mch/createActivity'], resolve) }},
     {path: '/mch/place', meta: {title: '桌位管理'}, component: resolve => { require(['@/views/mch/place'], resolve) }},
     {path: '/mch/deposit', meta: {title: '提现管理'}, component: resolve => { require(['@/views/mch/deposit'], resolve) }},
     {path: '/mch/backdrop', meta: {title: '背景审核'}, component: resolve => { require(['@/views/mch/backdrop'], resolve) }},

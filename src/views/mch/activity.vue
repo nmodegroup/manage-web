@@ -22,6 +22,7 @@
       </Select>
       <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
       <Button  @click="onReset">重置</Button>
+      <Button type="primary">新增</Button>
     </div>
     <div class="list-content">
       <Table  :columns="columns1" :data="list" height="450"></Table>
