@@ -200,3 +200,62 @@ export function  audit_code_back(data) {//背景审核
     }
   })
 }
+
+export function get_mch_shops (data) {//获取店铺列表
+  return request({
+    url: '/web/merchant/activity/shops' + requestParams.generateParams(data),
+    method: 'get',
+    headers: {
+      'Content-type': 'application/json'
+    }
+  }).then( res => {
+    const data = res.data
+    const list = [];
+    data.map( item => {
+      list.push({
+        id: String(item.id),
+        name: item.name
+      })
+    })
+    return list
+  })
+}
+
+export function post_update_activity (data) {//增/编辑活动
+  return request({
+    url: '/web/merchant/activity' + requestParams.generateParams(data),
+    method: 'post',
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    }
+  })
+}
+
+export function get_mch_shops_detail (data) {//获取店铺列表
+  return request({
+    url: '/web/merchant/activity/' + data.actId + requestParams.generateParams(data),
+    method: 'get',
+    headers: {
+      'Content-type': 'application/json'
+    }
+  }).then( res => {
+    const data = res.data
+    return {
+      mchId: String(data.mid),
+      theme: data.theme,
+      date: [data.beginTime, data.endTime],
+      provinceId: "",
+      cityId: String(data.cityId),
+      districtId: String(data.areaId),
+      address: data.address,
+      phone: data.phone,
+      guest: data.guest,
+      costType: String(data.isCharge),
+      ticketPrice: "",
+      reservation: String(data.quotaType),
+      quotasNum: "",
+      banner: data.banner,
+      poster: data.post
+    }
+  })
+}
