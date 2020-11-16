@@ -120,8 +120,10 @@
                         <FormItem prop="banner" style="width: 345px;height: 160px;">
                             <Upload
                                 :format="['jpg','jpeg','png']"
-                                :action="action" 
+                                action=""
                                 :show-upload-list="false"
+                                :default-file-list="fileList"
+                                :before-upload="handleBeforeUpload"
                                 >
                                 <div class="banner-upload">
                                     <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
@@ -156,7 +158,7 @@
 </template>
 <script>
 import { get_mch_shops, post_update_activity, get_mch_shops_detail } from "@/api/mch"
-import { get_city_all, get_city_list, get_city_district } from "@/api/common"
+import { get_city_all, get_city_list, get_city_district, uploadImage } from "@/api/common"
 export default {
   data () {
     return {
@@ -228,7 +230,8 @@ export default {
             poster: [
                 { required: true, message: '请上传活动海报', trigger: 'change' }
             ],
-        }
+        },
+        fileList: []
     }
   },
   methods: {
@@ -321,6 +324,13 @@ export default {
     },
     onChangeCity(val){
         this.getCityDistrict()
+    },
+   async handleBeforeUpload(file){
+        console.log(file)
+          await uploadImage({
+              floder: "merchant/activity/banner",
+              fileName:file.name
+          })
     }
   },
   async mounted () {

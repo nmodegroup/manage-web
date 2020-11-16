@@ -85,8 +85,8 @@ export function getOssFileSign (data) {//oss文件上传获取签名
   }
 
 export async function uploadImage(params) {
-    const ossFileSign = await getOssFileSign(params.formData)
-    // const { policy, OSSAccessKeyId, success_action_status, signature, url, key } = ossFileSign
+    const ossFileSign = await getOssFileSign(params)
+    const { policy, OSSAccessKeyId, success_action_status, signature, url, key } = ossFileSign
     // let _formData = Object.assign(
     //   params.formData, {
     //     key,
