@@ -1,7 +1,7 @@
 <template>
   <div class="main-block">
     <div class="header-bar">
-        <Button type="primary">
+        <Button type="primary" @click="$router.back(-1)">
             <Icon type="ios-arrow-back" /> 返回
         </Button>
     </div>
