@@ -11,7 +11,7 @@
                 <Select v-model="formValidate.mchId" placeholder="请选择商家">
                     <Option 
                      v-for="item in mchOptions" 
-                     :value="item.id" 
+                     :value="String(item.id)" 
                      :key="item.id"
                     >{{ item.name }}</Option>
                 </Select>
@@ -29,14 +29,42 @@
                 @on-change="onDateChange"
                 ></DatePicker>
             </FormItem>
-            <FormItem label="活动区域" prop="area" style="width: 320px">
-                <Select v-model="formValidate.area" placeholder="请选择活动区域">
-                    <Option 
-                     v-for="item in areaOptions" 
-                     :value="item.id" 
-                     :key="item.id"
-                    >{{ item.name }}</Option>
-                </Select>
+            <FormItem label="活动区域" required style="width: 620px">
+                 <Row>
+                    <Col span="6">
+                        <FormItem prop="provinceId">
+                            <Select v-model="formValidate.provinceId" placeholder="请选择省" @on-change="onChangeProvince">
+                                <Option 
+                                v-for="item in provinceOptions" 
+                                :value="item.id" 
+                                :key="item.id"
+                                >{{ item.name }}</Option>
+                            </Select>
+                        </FormItem>
+                    </Col>
+                    <Col span="6">
+                        <FormItem prop="cityId">
+                            <Select v-model="formValidate.cityId" placeholder="请选择市" @on-change="onChangeCity">
+                                <Option 
+                                v-for="item in cityOptions" 
+                                :value="item.id" 
+                                :key="item.id"
+                                >{{ item.name }}</Option>
+                            </Select>
+                        </FormItem>
+                    </Col>
+                    <Col span="6">
+                        <FormItem prop="districtId">
+                            <Select v-model="formValidate.districtId" placeholder="请选择区">
+                                <Option 
+                                v-for="item in districtOptions" 
+                                :value="item.id" 
+                                :key="item.id"
+                                >{{ item.name }}</Option>
+                            </Select>
+                        </FormItem>
+                    </Col>
+                 </Row>
             </FormItem>
             <FormItem label="详细地址" prop="address" style="width: 320px">
                 <Input v-model="formValidate.address" 
@@ -56,13 +84,13 @@
                     <Col span="6">
                         <FormItem prop="costType">
                             <RadioGroup v-model="formValidate.costType">
-                                <Radio label="male">免费参加</Radio>
-                                <Radio label="female">付费参加</Radio>
+                                <Radio label="0">免费参加</Radio>
+                                <Radio label="1">付费参加</Radio>
                             </RadioGroup>
                         </FormItem>
                     </Col>
                     <Col span="4">
-                        <FormItem prop="ticketPrice">
+                        <FormItem prop="ticketPrice" v-if="formValidate.costType==='1'">
                             <Input v-model="formValidate.ticketPrice" placeholder="请输入门票价格"/>
                         </FormItem>
                     </Col>
@@ -73,14 +101,14 @@
                     <Col span="12">
                         <FormItem prop="reservation">
                             <RadioGroup v-model="formValidate.reservation">
-                                <Radio value="0">不限</Radio>
-                                <Radio value="1">按系统已有桌位限制</Radio>
-                                <Radio value="2">按固定名额限制</Radio>
+                                <Radio label="0">不限</Radio>
+                                <Radio label="1">按系统已有桌位限制</Radio>
+                                <Radio label="2">按固定名额限制</Radio>
                             </RadioGroup>
                         </FormItem>
                     </Col>
                     <Col span="4">
-                        <FormItem prop="quotasNum">
+                        <FormItem prop="quotasNum" v-if="formValidate.reservation==='2'">
                             <Input v-model="formValidate.quotasNum" placeholder="请输入固定名额数量"/>
                         </FormItem>
                     </Col>
@@ -91,13 +119,17 @@
                     <Col span="12">
                         <FormItem prop="banner" style="width: 345px;height: 160px;">
                             <Upload
-                            :format="['jpg','jpeg','png']"
-                                type="drag"
-                                action="//jsonplaceholder.typicode.com/posts/">
-                                <div style="width: 345px;height: 160px;">
+                                :format="['jpg','jpeg','png']"
+                                action=""
+                                :show-upload-list="false"
+                                :default-file-list="fileList"
+                                :before-upload="handleBeforeUpload"
+                                >
+                                <div class="banner-upload">
                                     <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
                                     <p>请上传一张活动宣传banner图</p>
                                 </div>
+                                <!-- <img src="" class="banner-img"/> -->
                             </Upload>
                         </FormItem>
                     </Col>
@@ -106,10 +138,11 @@
                             <Upload
                                 type="drag"
                                 action="//jsonplaceholder.typicode.com/posts/">
-                                <div style="height: 600px; width: 345px" >
+                                <div class="detail-upload">
                                     <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
                                     <p>请上传一张活动海报</p>
                                 </div>
+                                <!-- <img src="" class="detail-img"/> -->
                             </Upload>
                         </FormItem>
                     </Col>
@@ -124,22 +157,24 @@
   </div>
 </template>
 <script>
+import { get_mch_shops, post_update_activity, get_mch_shops_detail } from "@/api/mch"
+import { get_city_all, get_city_list, get_city_district, uploadImage } from "@/api/common"
 export default {
   data () {
     return {
-        mchOptions: [{
-            id: "11",
-            name: "门没锁"
-        }],
-        areaOptions: [{
-            id: "11",
-            name: "吧台"
-        }],
+        id: this.$route.query.id || "",
+        mchOptions: [],
+        provinceOptions: [],
+        cityOptions: [],
+        districtOptions: [],
+        action: '',//上传图片地址
         formValidate: {
             mchId: '',
             theme: '',
-            date: '',
-            area: "",
+            date: "",
+            provinceId: "",
+            cityId: "",
+            districtId: "",
             address: "",
             phone: "",
             guest: "",
@@ -147,8 +182,8 @@ export default {
             ticketPrice: "",
             reservation: "",
             quotasNum: "",
-            banner: "",
-            poster: "",
+            banner: "dev/merchant/activity/banner/2020/11/14/e5c49efa53834cb7b2a114ce4850b3eagnSR.png",
+            poster: "dev/merchant/activity/banner/2020/11/14/c175d2af8f254925ab29ffd61ed3d0de5c4L.png",
         },
         ruleValidate: {
             mchId: [
@@ -160,12 +195,18 @@ export default {
             date: [
                 { required: true, type: 'array', message: '请选择活动时间', trigger: 'change',
                     fields: {
-                        0: { required: true,  message: "请选择活动时间", trigger: 'change' },
-                        1: { required: true,  message: '请选择活动时间', trigger: 'change' }
+                        // 0: { required: true,  message: "请选择活动时间", trigger: 'change' },
+                        // 1: { required: true,  message: '请选择活动时间', trigger: 'change' }
                     }
                 }
             ],
-            area: [
+            provinceId: [
+                { required: true, message: '请选择活动区域', trigger: 'change' }
+            ],
+            cityId: [
+                { required: true, message: '请选择活动区域', trigger: 'change' }
+            ],
+            districtId: [
                 { required: true, message: '请选择活动区域', trigger: 'change' }
             ],
             address: [
@@ -189,14 +230,69 @@ export default {
             poster: [
                 { required: true, message: '请上传活动海报', trigger: 'change' }
             ],
-        }
+        },
+        fileList: []
     }
   },
   methods: {
-      handleSubmit (name) {
+      getMchShops(){
+          get_mch_shops({
+              queryStr: ""
+          }).then(res => {
+              this.mchOptions = res.data
+          }).catch(error =>{})
+      },
+      async getMchShopsDetail(){
+          const result = await get_mch_shops_detail({
+              actId: this.id
+          })
+          this.formValidate = { ... result }
+      },
+      async postUpdateActivity(){
+          const { mchId,
+            theme,
+            date,
+            provinceId,
+            cityId,
+            districtId,
+            address,
+            phone,
+            guest,
+            costType,
+            ticketPrice,
+            reservation,
+            quotasNum } = this.formValidate
+        await post_update_activity({
+            id: this.id,
+            mid: mchId,
+            theme,
+            beginTime: date[0],
+            endTime: date[1],
+            provinceId,
+            cityId,
+            areaId: districtId,
+            cityName: "",
+            areaName: "",
+            address,
+            phone,
+            guest,
+            quotaType: reservation,
+            quota: "",
+            isCharge: costType,
+            charges: "",
+            banner: "dev/merchant/activity/banner/2020/11/14/e5c49efa53834cb7b2a114ce4850b3eagnSR.png",
+            post: "dev/merchant/activity/banner/2020/11/14/c175d2af8f254925ab29ffd61ed3d0de5c4L.png",
+            lng: "113.83744502675869",
+            lat: "22.63166110440271",
+        })
+      },
+
+
+    handleSubmit (name) {
         console.log(this.formValidate)
-        this.$refs[name].validate((valid) => {
+        this.$refs[name].validate(async (valid) => {
             if (valid) {
+                await this.postUpdateActivity()
                 this.$Message.success('Success!');
             } else {
                 this.$Message.error('Fail!');
@@ -209,13 +305,46 @@ export default {
     onDateChange(val){
         console.log(val)
         this.formValidate.date = val;
+    },
+    async getCityAll(){
+        this.provinceOptions = await get_city_all()
+    },
+    async getCityList(){
+        this.cityOptions = await get_city_list({
+            id: this.formValidate.provinceId
+        })
+    },
+    async getCityDistrict(){
+        this.districtOptions = await get_city_district({
+            id: this.formValidate.cityId
+        })
+    },
+    onChangeProvince(val){
+        this.getCityList()
+    },
+    onChangeCity(val){
+        this.getCityDistrict()
+    },
+   async handleBeforeUpload(file){
+        console.log(file)
+          await uploadImage({
+              floder: "merchant/activity/banner",
+              fileName:file.name
+          })
     }
   },
-  mounted () {
+  async mounted () {
+    this.mchOptions = await get_mch_shops({ queryStr: ""})
+    this.provinceOptions = await get_city_all()
+    if (this.id){
+        this.getMchShopsDetail()
+    }
   },
   beforeCreate () {
   },
-  created () {
+  async created () {
+    
+    
   },
   activated () {
   }
@@ -230,5 +359,19 @@ export default {
 }
 .form-block {
     width: 820px;
+}
+.banner-upload{
+    width: 345px;
+    height: 160px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+.detail-upload {
+    height: 600px; 
+    width: 345px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
 </style>

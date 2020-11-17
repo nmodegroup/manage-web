@@ -22,7 +22,7 @@
       </Select>
       <Button type="primary" style="margin-left:20px;" @click="onSerach">搜索</Button>
       <Button  @click="onReset">重置</Button>
-      <Button type="primary">新增</Button>
+      <Button type="primary" @click="onActivity">新增</Button>
     </div>
     <div class="list-content">
       <Table  :columns="columns1" :data="list" height="450"></Table>
@@ -335,6 +335,21 @@ export default {
                     })
                   }
                 }}, '强制下架'),
+                h('a', {
+                props: {
+                  href: "javascript:void(0)"
+                },
+                style: {
+                  display: params.row.creatorType == 1 ? "none": "",
+                  'color': params.row.auditStatus == 0 ? 'gray' : ''
+                },
+                on: {
+                  click: () => {
+                    if (params.row.auditStatus == 0) return
+                    this.$router.push("/mch/activity/addEdit?id=" + params.row.id)
+                  }
+                },
+                }, '编辑')
               ])
             }
           },
@@ -402,6 +417,9 @@ export default {
     date_change(date) {
       this.query.beginTime = date[0]
       this.query.endTime = date[1]
+    },
+    onActivity(){
+      this.$router.push("/mch/activity/addEdit")
     }
   },
   mounted () {
