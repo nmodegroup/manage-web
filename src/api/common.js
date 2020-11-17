@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: kangguimin
+ * @Date: 2020-11-17 14:52:57
+ * @LastEditors: kangguimin
+ * @LastEditTime: 2020-11-17 18:02:02
+ */
 import request from '@/libs/service'
 import requestParams from '@/libs/requestParams';
 import qs from 'qs'
@@ -80,38 +88,30 @@ export function getOssFileSign (data) {//oss文件上传获取签名
         'Content-type': 'application/json'
       }
     }).then( res => {
-        console.log(res)
+       return res.data
     })
   }
 
-export async function uploadImage(params) {
-    const ossFileSign = await getOssFileSign(params)
-    const { policy, OSSAccessKeyId, success_action_status, signature, url, key } = ossFileSign
-    // let _formData = Object.assign(
-    //   params.formData, {
-    //     key,
-    //     policy,
-    //     OSSAccessKeyId,
-    //     success_action_status,
-    //     signature
-    //   })
-    // return new Promise((resolve, reject) => {
-    //   wx.uploadFile({
-    //     url: 'https://oss.nightmodeplus.com',
-    //     filePath: params.filePath,
-    //     name: 'file',
-    //     formData: _formData,
-    //     success: res => {
-    //       console.log(res)
-    //       resolve(key)
-    //     },
-    //     fail: (err) => {
-    //       console.log(err)
-    //       reject({ code: -1, msg: '上传失败', data: '' });
-    //     }
-    //   });
-    // });
-  }
+export function uploadImage (data) {
+  return request({
+  url: 'https://oss.nightmodeplus.com',
+  method: 'post',
+  headers: {
+    'Content-type': 'multipart/form-data'
+  },
+  data
+  }).then( res => {
+  })
+}
 
-
-  
+// export function getGeolocation (data) {
+//   return request({
+//     url: 'https://apis.map.qq.com/ws/geocoder/v1/' + requestParams.generateParams(data),
+//     method: 'get',
+//     headers: {
+//       'Content-type': 'application/json'
+//     }
+//   }).then( res => {
+//      console.log(res)
+//   })
+// }

@@ -244,7 +244,7 @@ export function get_mch_shops_detail (data) {//获取店铺列表
       mchId: String(data.mid),
       theme: data.theme,
       date: [data.beginTime, data.endTime],
-      provinceId: "",
+      provinceId: String(data.provinceId),
       cityId: String(data.cityId),
       districtId: String(data.areaId),
       address: data.address,

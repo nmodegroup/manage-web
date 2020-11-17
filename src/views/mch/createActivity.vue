@@ -91,7 +91,7 @@
                     </Col>
                     <Col span="4">
                         <FormItem prop="ticketPrice" v-if="formValidate.costType==='1'">
-                            <Input v-model="formValidate.ticketPrice" placeholder="请输入门票价格"/>
+                            <Input v-model="formValidate.ticketPrice" type="number" placeholder="请输入门票价格"/>
                         </FormItem>
                     </Col>
                 </Row>
@@ -107,9 +107,9 @@
                             </RadioGroup>
                         </FormItem>
                     </Col>
-                    <Col span="4">
+                    <Col span="5">
                         <FormItem prop="quotasNum" v-if="formValidate.reservation==='2'">
-                            <Input v-model="formValidate.quotasNum" placeholder="请输入固定名额数量"/>
+                            <Input v-model="formValidate.quotasNum" type="number" placeholder="请输入固定名额数量"/>
                         </FormItem>
                     </Col>
                 </Row>
@@ -119,30 +119,34 @@
                     <Col span="12">
                         <FormItem prop="banner" style="width: 345px;height: 160px;">
                             <Upload
+                            type="drag"
                                 :format="['jpg','jpeg','png']"
                                 action=""
                                 :show-upload-list="false"
-                                :default-file-list="fileList"
                                 :before-upload="handleBeforeUpload"
                                 >
-                                <div class="banner-upload">
+                                <div class="banner-upload" v-if="!bannerPath">
                                     <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
                                     <p>请上传一张活动宣传banner图</p>
                                 </div>
-                                <!-- <img src="" class="banner-img"/> -->
+                                <img :src="bannerPath" class="banner-upload" v-else/>
                             </Upload>
                         </FormItem>
                     </Col>
                     <Col span="12">
                         <FormItem prop="poster" style="height: 600px; width: 345px">
                             <Upload
-                                type="drag"
-                                action="//jsonplaceholder.typicode.com/posts/">
-                                <div class="detail-upload">
+                            type="drag"
+                            :format="['jpg','jpeg','png']"
+                            action=""
+                            :show-upload-list="false"
+                            :before-upload="handleBeforeUploadPoster"
+                            >
+                                <div class="detail-upload" v-if="!posterPath">
                                     <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
                                     <p>请上传一张活动海报</p>
                                 </div>
-                                <!-- <img src="" class="detail-img"/> -->
+                                <img :src="posterPath" class="detail-upload" v-else/>
                             </Upload>
                         </FormItem>
                     </Col>
@@ -158,7 +162,7 @@
 </template>
 <script>
 import { get_mch_shops, post_update_activity, get_mch_shops_detail } from "@/api/mch"
-import { get_city_all, get_city_list, get_city_district, uploadImage } from "@/api/common"
+import { get_city_all, get_city_list, get_city_district, getOssFileSign, uploadImage, getGeolocation } from "@/api/common"
 export default {
   data () {
     return {
@@ -167,7 +171,10 @@ export default {
         provinceOptions: [],
         cityOptions: [],
         districtOptions: [],
-        action: '',//上传图片地址
+        uploadHost: '',// 上传图片地址
+        uploadData: {}, // 上传携带参数
+        bannerPath: "",
+        posterPath: "",
         formValidate: {
             mchId: '',
             theme: '',
@@ -182,8 +189,10 @@ export default {
             ticketPrice: "",
             reservation: "",
             quotasNum: "",
-            banner: "dev/merchant/activity/banner/2020/11/14/e5c49efa53834cb7b2a114ce4850b3eagnSR.png",
-            poster: "dev/merchant/activity/banner/2020/11/14/c175d2af8f254925ab29ffd61ed3d0de5c4L.png",
+            banner: "",
+            poster: "",
+            lng: "",
+            lat: ""
         },
         ruleValidate: {
             mchId: [
@@ -230,8 +239,13 @@ export default {
             poster: [
                 { required: true, message: '请上传活动海报', trigger: 'change' }
             ],
+            ticketPrice: [
+                { required: true, message: '请输入门票价格', trigger: 'blur' }
+            ],
+            quotasNum: [
+                { required: true, message: '请输入固定名额数量', trigger: 'blur' }
+            ]
         },
-        fileList: []
     }
   },
   methods: {
@@ -247,6 +261,11 @@ export default {
               actId: this.id
           })
           this.formValidate = { ... result }
+          this.bannerPath = this.staticURL(result.banner)
+          this.posterPath = this.staticURL(result.poster)
+          console.log(this.formValidate)
+          await this.getCityList()
+          await this.getCityDistrict()
       },
       async postUpdateActivity(){
           const { mchId,
@@ -261,7 +280,11 @@ export default {
             costType,
             ticketPrice,
             reservation,
-            quotasNum } = this.formValidate
+            quotasNum,
+            lat,
+            lng,
+            banner,
+            poster, } = this.formValidate
         await post_update_activity({
             id: this.id,
             mid: mchId,
@@ -277,25 +300,25 @@ export default {
             phone,
             guest,
             quotaType: reservation,
-            quota: "",
+            quota:quotasNum,
             isCharge: costType,
-            charges: "",
-            banner: "dev/merchant/activity/banner/2020/11/14/e5c49efa53834cb7b2a114ce4850b3eagnSR.png",
-            post: "dev/merchant/activity/banner/2020/11/14/c175d2af8f254925ab29ffd61ed3d0de5c4L.png",
-            lng: "113.83744502675869",
-            lat: "22.63166110440271",
+            charges: ticketPrice,
+            banner,
+            post: poster,
+            lng, // "113.83744502675869"
+            lat, // "22.63166110440271"
         })
       },
 
-
     handleSubmit (name) {
-        console.log(this.formValidate)
         this.$refs[name].validate(async (valid) => {
             if (valid) {
+                await this.geolocation()
                 await this.postUpdateActivity()
-                this.$Message.success('Success!');
+                this.$Message.success('操作成功');
+                this.$router.push("/mch/activity")
             } else {
-                this.$Message.error('Fail!');
+                return false
             }
         })
     },
@@ -303,7 +326,6 @@ export default {
         this.$refs[name].resetFields();
     },
     onDateChange(val){
-        console.log(val)
         this.formValidate.date = val;
     },
     async getCityAll(){
@@ -325,13 +347,54 @@ export default {
     onChangeCity(val){
         this.getCityDistrict()
     },
-   async handleBeforeUpload(file){
-        console.log(file)
-          await uploadImage({
-              floder: "merchant/activity/banner",
-              fileName:file.name
-          })
-    }
+    async handleBeforeUpload(file){
+        const result = await this.handleUploadImage("merchant/activity/banner", file)
+        this.bannerPath = result.url;
+        this.formValidate.banner = result.key
+    },
+    async handleBeforeUploadPoster(file){
+        const result = await this.handleUploadImage("merchant/activity/poster", file)
+        this.posterPath = result.url;
+        this.formValidate.poster = result.key
+    },
+    async handleUploadImage(floder, file){
+        const result = await getOssFileSign({
+            floder,
+            fileName: file.name
+        })
+        let FormDatas = new FormData();
+        FormDatas.append('key', result.key);
+        FormDatas.append('policy', result.policy);
+        FormDatas.append('OSSAccessKeyId', result.OSSAccessKeyId);
+        FormDatas.append('success_action_status', result.success_action_status);
+        FormDatas.append('signature', result.signature);
+        FormDatas.append('file', file);
+        try{
+            await uploadImage(FormDatas)
+        }catch(error){
+            return result
+        }
+    },
+    async geolocation(){
+        const key = "S64BZ-C23KU-JWBVI-22WUI-FQW75-WTB44";
+        const address =  this.formValidate.address; //"北京市海淀区彩和坊路海淀西大街74号";
+        const url = `https://apis.map.qq.com/ws/geocoder/v1/`
+         this.$jsonp(url,{
+	          key,
+              output:'jsonp',
+              address,
+	        })
+			.then(json => {
+                if(json.status === 0){
+                    const location = json.result.location;
+                    this.formValidate.lng = location.lng;
+                    this.formValidate.lat = location.lat;
+                }
+			})
+		    .catch(err => {
+				console.log(err)
+			})
+	    }
   },
   async mounted () {
     this.mchOptions = await get_mch_shops({ queryStr: ""})
@@ -342,9 +405,7 @@ export default {
   },
   beforeCreate () {
   },
-  async created () {
-    
-    
+  created () {
   },
   activated () {
   }

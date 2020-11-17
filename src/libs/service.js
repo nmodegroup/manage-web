@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: kangguimin
+ * @Date: 2020-11-09 16:56:37
+ * @LastEditors: kangguimin
+ * @LastEditTime: 2020-11-17 17:00:07
+ */
 import {
   Message,
   Modal
@@ -34,8 +42,10 @@ service.interceptors.response.use(
               }
           })
       } else {
+        if (response.config.url !== "https://oss.nightmodeplus.com") {
           messageError(res.msg);
-          return Promise.reject(res);
+        }
+        return Promise.reject(res);
       }
   },
   error => {
