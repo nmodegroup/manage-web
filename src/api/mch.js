@@ -243,7 +243,7 @@ export function get_mch_shops_detail (data) {//获取店铺列表
     return {
       mchId: String(data.mid),
       theme: data.theme,
-      date: [data.beginTime, data.endTime],
+      date: [''+ data.beginTime, ''+ data.endTime],
       provinceId: String(data.provinceId),
       cityId: String(data.cityId),
       districtId: String(data.areaId),
@@ -251,9 +251,9 @@ export function get_mch_shops_detail (data) {//获取店铺列表
       phone: data.phone,
       guest: data.guest,
       costType: String(data.isCharge),
-      ticketPrice: "",
+      ticketPrice: String(data.isCharge)==="0" ? "" : data.charges,
       reservation: String(data.quotaType),
-      quotasNum: "",
+      quotasNum: data.quota,
       banner: data.banner,
       poster: data.post
     }

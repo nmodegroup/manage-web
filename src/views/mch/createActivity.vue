@@ -8,7 +8,7 @@
     <div class="header-bar">
        <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="110" class="form-block">
            <FormItem label="商家名称" prop="mchId" style="width: 320px">
-                <Select v-model="formValidate.mchId" placeholder="请选择商家">
+                <Select v-model="formValidate.mchId" placeholder="请选择商家" filterable>
                     <Option 
                      v-for="item in mchOptions" 
                      :value="String(item.id)" 
@@ -26,6 +26,7 @@
                 format="yyyy-MM-dd HH:mm:ss"
                 value-format="yyyy-MM-dd HH:mm:ss"
                 v-model="formValidate.date"
+                :value="formValidate.date"
                 @on-change="onDateChange"
                 ></DatePicker>
             </FormItem>
@@ -83,7 +84,7 @@
                  <Row>
                     <Col span="6">
                         <FormItem prop="costType">
-                            <RadioGroup v-model="formValidate.costType">
+                            <RadioGroup v-model="formValidate.costType" @on-change="onChangeCost">
                                 <Radio label="0">免费参加</Radio>
                                 <Radio label="1">付费参加</Radio>
                             </RadioGroup>
@@ -98,11 +99,11 @@
             </FormItem>
             <FormItem label="限制预定数量" required>
                  <Row>
-                    <Col span="12">
+                    <Col :span="formValidate.costType!=='1'? '12': '6'">
                         <FormItem prop="reservation">
                             <RadioGroup v-model="formValidate.reservation">
                                 <Radio label="0">不限</Radio>
-                                <Radio label="1">按系统已有桌位限制</Radio>
+                                <Radio label="1" v-if="formValidate.costType!=='1'">按系统已有桌位限制</Radio>
                                 <Radio label="2">按固定名额限制</Radio>
                             </RadioGroup>
                         </FormItem>
@@ -124,6 +125,7 @@
                                 action=""
                                 :show-upload-list="false"
                                 :before-upload="handleBeforeUpload"
+                                :on-format-error="handleFormatError"
                                 >
                                 <div class="banner-upload" v-if="!bannerPath">
                                     <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
@@ -141,6 +143,7 @@
                             action=""
                             :show-upload-list="false"
                             :before-upload="handleBeforeUploadPoster"
+                            :on-format-error="handleFormatError"
                             >
                                 <div class="detail-upload" v-if="!posterPath">
                                     <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
@@ -175,6 +178,7 @@ export default {
         uploadData: {}, // 上传携带参数
         bannerPath: "",
         posterPath: "",
+        jumpDate: [],
         formValidate: {
             mchId: '',
             theme: '',
@@ -203,10 +207,10 @@ export default {
             ],
             date: [
                 { required: true, type: 'array', message: '请选择活动时间', trigger: 'change',
-                    fields: {
-                        // 0: { required: true,  message: "请选择活动时间", trigger: 'change' },
-                        // 1: { required: true,  message: '请选择活动时间', trigger: 'change' }
-                    }
+                    // fields: {
+                    //     0: { required: true, message: "请选择活动时间", trigger: 'change' },
+                    //     1: { required: true, message: '请选择活动时间', trigger: 'change' }
+                    // }
                 }
             ],
             provinceId: [
@@ -234,16 +238,16 @@ export default {
                 { required: true, message: '请选择限制预定数量类型 ', trigger: 'change' }
             ],
             banner: [
-                { required: true, message: '请上传活动宣传banner', trigger: 'change' }
+                { required: true, message: '请上传活动宣传banner', trigger: 'blur' }
             ],
             poster: [
-                { required: true, message: '请上传活动海报', trigger: 'change' }
+                { required: true, message: '请上传活动海报', trigger: 'blur' }
             ],
             ticketPrice: [
-                { required: true, message: '请输入门票价格', trigger: 'blur' }
+                { required: true, message: '请输入门票价格', trigger: ['blur', 'change'] }
             ],
             quotasNum: [
-                { required: true, message: '请输入固定名额数量', trigger: 'blur' }
+                { required: true, message: '请输入固定名额数量', trigger: ['blur', 'change'] }
             ]
         },
     }
@@ -260,15 +264,15 @@ export default {
           const result = await get_mch_shops_detail({
               actId: this.id
           })
+          this.jumpDate = result.date
           this.formValidate = { ... result }
           this.bannerPath = this.staticURL(result.banner)
           this.posterPath = this.staticURL(result.poster)
-          console.log(this.formValidate)
           await this.getCityList()
           await this.getCityDistrict()
       },
       async postUpdateActivity(){
-          const { mchId,
+          let { mchId,
             theme,
             date,
             provinceId,
@@ -285,12 +289,16 @@ export default {
             lng,
             banner,
             poster, } = this.formValidate
+        let beginTime = this.jumpDate.length > 0 ? this.jumpDate[0]: date[0];
+        let endTime = this.jumpDate.length > 0 ? this.jumpDate[1]: date[1];
+        ticketPrice = costType==="0" ? "" : ticketPrice;
+        quotasNum = reservation==="2" ? quotasNum : "";
         await post_update_activity({
             id: this.id,
             mid: mchId,
             theme,
-            beginTime: date[0],
-            endTime: date[1],
+            beginTime: beginTime,
+            endTime: endTime,
             provinceId,
             cityId,
             areaId: districtId,
@@ -300,16 +308,15 @@ export default {
             phone,
             guest,
             quotaType: reservation,
-            quota:quotasNum,
+            quota: quotasNum,
             isCharge: costType,
             charges: ticketPrice,
             banner,
             post: poster,
-            lng, // "113.83744502675869"
-            lat, // "22.63166110440271"
+            lng,
+            lat,
         })
       },
-
     handleSubmit (name) {
         this.$refs[name].validate(async (valid) => {
             if (valid) {
@@ -326,7 +333,11 @@ export default {
         this.$refs[name].resetFields();
     },
     onDateChange(val){
-        this.formValidate.date = val;
+        this.jumpDate = [];
+        this.formValidate.date = [...val];
+    },
+    onChangeCost(val){
+        console.log(val)
     },
     async getCityAll(){
         this.provinceOptions = await get_city_all()
@@ -374,6 +385,9 @@ export default {
         }catch(error){
             return result
         }
+    },
+    handleFormatError(file){
+      this.$Message.warning('文件 ' + file.name + ' 格式不正确，请上传.jpg或者.jpeg或者.png文件。')
     },
     async geolocation(){
         const key = "S64BZ-C23KU-JWBVI-22WUI-FQW75-WTB44";

@@ -4,7 +4,7 @@
  * @Author: kangguimin
  * @Date: 2020-11-09 16:56:37
  * @LastEditors: kangguimin
- * @LastEditTime: 2020-11-17 17:00:07
+ * @LastEditTime: 2020-11-19 20:28:24
  */
 import {
   Message,
@@ -30,6 +30,7 @@ service.interceptors.request.use(config => {
 })
 service.interceptors.response.use(
   response => {
+    
       const res = response.data;
       if (res.code == 1000) {
           return Promise.resolve(response.data);
@@ -42,15 +43,16 @@ service.interceptors.response.use(
               }
           })
       } else {
-        if (response.config.url !== "https://oss.nightmodeplus.com") {
+        if (response.config.url !== "https://oss.nightmodeplus.com"&& response.config.url !=="https://oss.nightmodeplus.com/") {
+          console.log(response)
           messageError(res.msg);
         }
         return Promise.reject(res);
       }
   },
   error => {
-      messageError(error.message);
-      return Promise.reject(error);
+    messageError(error.message);
+    return Promise.reject(error);
   })
 function messageError (msg) {
   if (!msg || msg === 'Network Error') {

@@ -4,11 +4,12 @@
  * @Author: kangguimin
  * @Date: 2020-11-17 14:52:57
  * @LastEditors: kangguimin
- * @LastEditTime: 2020-11-17 18:02:02
+ * @LastEditTime: 2020-11-19 14:29:19
  */
 import request from '@/libs/service'
 import requestParams from '@/libs/requestParams';
 import qs from 'qs'
+import constant from "@/constant"
 
 export function get_homePage (data) {//oss文件上传获取签名
   return request({
@@ -94,7 +95,7 @@ export function getOssFileSign (data) {//oss文件上传获取签名
 
 export function uploadImage (data) {
   return request({
-  url: 'https://oss.nightmodeplus.com',
+  url: constant.globalData.imgUrl,
   method: 'post',
   headers: {
     'Content-type': 'multipart/form-data'
@@ -103,15 +104,3 @@ export function uploadImage (data) {
   }).then( res => {
   })
 }
-
-// export function getGeolocation (data) {
-//   return request({
-//     url: 'https://apis.map.qq.com/ws/geocoder/v1/' + requestParams.generateParams(data),
-//     method: 'get',
-//     headers: {
-//       'Content-type': 'application/json'
-//     }
-//   }).then( res => {
-//      console.log(res)
-//   })
-// }

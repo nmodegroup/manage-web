@@ -6,13 +6,19 @@
         <span class="banner-tips" v-show="banner.onStatus !== ''">
           {{ !isNaN(banner.onStatus) && banner.onStatus == 0 ? '已启用' : '未启用'}}
         </span>
-        <Upload :action="action" :headers="headers" :show-upload-list="false"
+         <Upload
+          :format="['jpg','jpeg','png']"
+          action=""
+          :show-upload-list="false"
+          :before-upload="handleBeforeUploadPoster"
+        >
+        <!-- <Upload :action="action" :headers="headers" :show-upload-list="false"
         :on-success="handleSuccess" :data ="uploadForm"
         :before-upload="handleBeforeUpload"
         :on-format-error="handleFormatError"
         :disabled="banner.onStatus === 0"
         :format ="['jpg', 'jpeg']"
-        >
+        > -->
           <div class="banner-img-frame">
             <div class="banner-add" v-show="!banner.img">
               <img src="../../../static/img/icon_add.png">
@@ -123,6 +129,7 @@ import {get_homePage, get_mch_list, get_activity_list,
 toggle_banner, update_bar, get_mch_info, update_banner,
 toggle_bar} from "@/api/index"
 import constant from "../../constant.js"
+import { getOssFileSign, uploadImage } from "@/api/common"
 export default {
   data () {
     return {
@@ -145,7 +152,7 @@ export default {
       selMchIdx: '',//选中的商家列表下标
       selActivityIdx: '',//选中的活动列表下标
       selBannerIdx: '',//选择banner图的下标
-      selBarIdx: ''//选择的人气酒吧下标
+      selBarIdx: '',//选择的人气酒吧下标
     }
   },
   methods: {
@@ -226,6 +233,34 @@ export default {
     //上传文件格式错误提示
     handleFormatError(file){
       this.$Message.warning('文件 ' + file.name + ' 格式不正确，请上传.jpg或者.jpeg文件。')
+    },
+
+    async handleBeforeUploadPoster(file){
+      const result = await this.handleUploadImage("web_image", file)
+      // this.posterPath = result.url;
+      // this.formValidate.poster = result.key;
+      this.bannerList[this.selBannerIdx].img =  result.key
+      this.bannerList[this.selBannerIdx].name = "";
+      this.bannerList[this.selBannerIdx].objId = "";
+      this.bannerList[this.selBannerIdx].type = "";
+    },
+    async handleUploadImage(floder, file){
+      const result = await getOssFileSign({
+          floder,
+          fileName: file.name
+      })
+      let FormDatas = new FormData();
+      FormDatas.append('key', result.key);
+      FormDatas.append('policy', result.policy);
+      FormDatas.append('OSSAccessKeyId', result.OSSAccessKeyId);
+      FormDatas.append('success_action_status', result.success_action_status);
+      FormDatas.append('signature', result.signature);
+      FormDatas.append('file', file);
+      try{
+          await uploadImage(FormDatas)
+      }catch(error){
+          return result
+      }
     },
     //获取商家列表
     getMchList () {
