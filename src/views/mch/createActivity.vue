@@ -27,6 +27,7 @@
                 value-format="yyyy-MM-dd HH:mm:ss"
                 v-model="formValidate.date"
                 :value="formValidate.date"
+                :options="disabledDateOptions"
                 @on-change="onDateChange"
                 ></DatePicker>
             </FormItem>
@@ -56,7 +57,7 @@
                     </Col>
                     <Col span="6">
                         <FormItem prop="districtId">
-                            <Select v-model="formValidate.districtId" placeholder="请选择区">
+                            <Select v-model="formValidate.districtId" placeholder="请选择区" @on-change="onChangeDistrict">
                                 <Option 
                                 v-for="item in districtOptions" 
                                 :value="item.id" 
@@ -174,11 +175,19 @@ export default {
         provinceOptions: [],
         cityOptions: [],
         districtOptions: [],
+        provinceName: "",
+        cityName: "",
+        districtName: "",
         uploadHost: '',// 上传图片地址
         uploadData: {}, // 上传携带参数
         bannerPath: "",
         posterPath: "",
         jumpDate: [],
+        disabledDateOptions: {
+            disabledDate (date) {
+                return date && date.valueOf() < Date.now();
+            }
+        },
         formValidate: {
             mchId: '',
             theme: '',
@@ -354,9 +363,22 @@ export default {
     },
     onChangeProvince(val){
         this.getCityList()
+        this.provinceName = this.getWantResult(this.provinceOptions, val)
     },
     onChangeCity(val){
         this.getCityDistrict()
+        this.cityName = this.getWantResult(this.cityOptions, val)
+    },
+    onChangeDistrict(val){
+        this.districtName = this.getWantResult(this.districtOptions, val)
+    },
+    getWantResult(arr, id){
+        let name = "";
+        arr.map( item => {
+            if (item.id === id) {
+                name = item.name
+            }
+        })
     },
     async handleBeforeUpload(file){
         const result = await this.handleUploadImage("merchant/activity/banner", file)
@@ -391,7 +413,7 @@ export default {
     },
     async geolocation(){
         const key = "S64BZ-C23KU-JWBVI-22WUI-FQW75-WTB44";
-        const address =  this.formValidate.address; //"北京市海淀区彩和坊路海淀西大街74号";
+        const address =  this.provinceName + this.cityName + this.districtName + this.formValidate.address; //"北京市海淀区彩和坊路海淀西大街74号";
         const url = `https://apis.map.qq.com/ws/geocoder/v1/`
          this.$jsonp(url,{
 	          key,

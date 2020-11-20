@@ -3,8 +3,8 @@
  * @version: 
  * @Author: kangguimin
  * @Date: 2020-11-09 16:56:37
- * @LastEditors: kangguimin
- * @LastEditTime: 2020-11-19 20:28:24
+ * @LastEditors: kgm
+ * @LastEditTime: 2020-11-20 18:24:01
  */
 import {
   Message,
@@ -44,7 +44,6 @@ service.interceptors.response.use(
           })
       } else {
         if (response.config.url !== "https://oss.nightmodeplus.com"&& response.config.url !=="https://oss.nightmodeplus.com/") {
-          console.log(response)
           messageError(res.msg);
         }
         return Promise.reject(res);
