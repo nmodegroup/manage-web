@@ -76,7 +76,7 @@
                 />
             </FormItem>
             <FormItem label="联系电话" prop="phone" style="width: 320px">
-                <Input v-model="formValidate.phone" placeholder="请输入联系电话"/>
+                <Input v-model="formValidate.phone" type="number" placeholder="请输入联系电话" :minlength="11" :maxlength="11"/>
             </FormItem>
             <FormItem label="嘉宾信息" prop="guest" style="width: 320px">
                 <Input v-model="formValidate.guest" placeholder="请输入嘉宾姓名（多个用','隔开）"/>
@@ -185,7 +185,7 @@ export default {
         jumpDate: [],
         disabledDateOptions: {
             disabledDate (date) {
-                return date && date.valueOf() < Date.now();
+                return date && date.valueOf() < (Date.now() - 24*3600*1000) ;
             }
         },
         formValidate: {
@@ -235,7 +235,8 @@ export default {
                 { required: true, message: '请输入活动详细地址', trigger: 'blur' },
             ],
             phone: [
-                { required: true, message: '请输入联系电话', trigger: 'blur' },
+                { required: true, message: '请输入联系电话', trigger: ['blur', 'change'] },
+                { min: 11, max: 11, message: '请输入11位数字', trigger: 'blur' }
             ],
             guest: [
                 { required: true, message: '请输入嘉宾姓名', trigger: 'blur' },
@@ -279,6 +280,9 @@ export default {
           this.posterPath = this.staticURL(result.poster)
           await this.getCityList()
           await this.getCityDistrict()
+          this.provinceName = this.getWantResult(this.provinceOptions, result.provinceId)
+          this.cityName = result.cityName;
+          this.districtName = result.districtName;
       },
       async postUpdateActivity(){
           let { mchId,
@@ -329,7 +333,9 @@ export default {
     handleSubmit (name) {
         this.$refs[name].validate(async (valid) => {
             if (valid) {
-                await this.geolocation()
+                const location = await this.geolocation()
+                this.formValidate.lng = location.lng;
+                this.formValidate.lat = location.lat;
                 await this.postUpdateActivity()
                 this.$Message.success('操作成功');
                 this.$router.push("/mch/activity")
@@ -346,7 +352,6 @@ export default {
         this.formValidate.date = [...val];
     },
     onChangeCost(val){
-        console.log(val)
     },
     async getCityAll(){
         this.provinceOptions = await get_city_all()
@@ -379,6 +384,7 @@ export default {
                 name = item.name
             }
         })
+        return name
     },
     async handleBeforeUpload(file){
         const result = await this.handleUploadImage("merchant/activity/banner", file)
@@ -411,11 +417,12 @@ export default {
     handleFormatError(file){
       this.$Message.warning('文件 ' + file.name + ' 格式不正确，请上传.jpg或者.jpeg或者.png文件。')
     },
-    async geolocation(){
+    geolocation(){
         const key = "S64BZ-C23KU-JWBVI-22WUI-FQW75-WTB44";
         const address =  this.provinceName + this.cityName + this.districtName + this.formValidate.address; //"北京市海淀区彩和坊路海淀西大街74号";
         const url = `https://apis.map.qq.com/ws/geocoder/v1/`
-         this.$jsonp(url,{
+        return new Promise((resove, reject) => {
+            this.$jsonp(url,{
 	          key,
               output:'jsonp',
               address,
@@ -423,14 +430,24 @@ export default {
 			.then(json => {
                 if(json.status === 0){
                     const location = json.result.location;
-                    this.formValidate.lng = location.lng;
-                    this.formValidate.lat = location.lat;
+                    resove(location)
+                } else {
+                    resove({
+                        lng: "",
+                        lat: ""
+                    })
                 }
 			})
 		    .catch(err => {
-				console.log(err)
+                console.log(err)
+                reject({
+                    lng: "",
+                    lat: ""
+                })
 			})
-	    }
+        })
+    }
+         
   },
   async mounted () {
     this.mchOptions = await get_mch_shops({ queryStr: ""})

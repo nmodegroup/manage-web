@@ -255,7 +255,9 @@ export function get_mch_shops_detail (data) {//获取店铺列表
       reservation: String(data.quotaType),
       quotasNum: data.quota,
       banner: data.banner,
-      poster: data.post
+      poster: data.post,
+      cityName: data.cityName,
+      districtName: data.areaName
     }
   })
 }
