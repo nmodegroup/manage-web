@@ -3,8 +3,8 @@
  * @version: 
  * @Author: kangguimin
  * @Date: 2020-11-09 16:56:37
- * @LastEditors: kangguimin
- * @LastEditTime: 2020-11-17 18:23:26
+ * @LastEditors: kgm
+ * @LastEditTime: 2020-11-30 19:30:21
  */
 import Vue from 'vue'
 import App from './App'
@@ -14,11 +14,13 @@ import 'iview/dist/styles/iview.css';
 import '../static/css/common.css'
 import constant from './constant.js'
 import {VueJsonp} from 'vue-jsonp'
+import VueCropper from 'vue-cropper' 
 iView.Message.config({
   duration: 3
 });
 Vue.use(iView)
 Vue.use(VueJsonp)
+Vue.use(VueCropper)
 // 路由跳转公用方法
 Vue.prototype.$goto = function (name, query, params) {
   let last = arguments[arguments.length - 1]

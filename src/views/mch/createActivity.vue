@@ -134,6 +134,10 @@
                                 </div>
                                 <img :src="bannerPath" class="banner-upload" v-else/>
                             </Upload>
+                            <Spin fix v-if="bannerLoading">
+                                <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+                                <div>上传中...</div>
+                            </Spin>
                         </FormItem>
                     </Col>
                     <Col span="12">
@@ -152,6 +156,10 @@
                                 </div>
                                 <img :src="posterPath" class="detail-upload" v-else/>
                             </Upload>
+                             <Spin fix v-if="posterLoading">
+                                <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+                                <div>上传中...</div>
+                            </Spin>
                         </FormItem>
                     </Col>
                 </Row>
@@ -162,6 +170,34 @@
             </FormItem>
         </Form>
     </div>
+ <!-- vueCropper 剪裁图片实现-->
+        <Modal
+        v-model="dialogVisible"
+        title="图片剪裁"
+        @on-ok="finish"
+        @on-cancel="dialogVisible = false">
+      <div class="cropper-content">
+        <div class="cropper" style="text-align:center">
+        <vueCropper
+            ref="cropper"
+            :img="option.img"
+            :outputSize="option.size"
+            :outputType="option.outputType"
+            :info="true"
+            :full="option.full"
+            :canMove="option.canMove"
+            :canMoveBox="option.canMoveBox"
+            :original="option.original"
+            :autoCrop="option.autoCrop"
+            :fixed="option.fixed"
+            :fixedNumber="option.fixedNumber"
+            :centerBox="option.centerBox"
+            :infoTrue="option.infoTrue"
+            :fixedBox="option.fixedBox"
+          ></vueCropper>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 <script>
@@ -260,6 +296,29 @@ export default {
                 { required: true, message: '请输入固定名额数量', trigger: ['blur', 'change'] }
             ]
         },
+        option: {
+            img: '', // 裁剪图片的地址
+            info: true, // 裁剪框的大小信息
+            outputSize: 0.8, // 裁剪生成图片的质量
+            outputType: 'jpeg', // 裁剪生成图片的格式
+            canScale: false, // 图片是否允许滚轮缩放
+            autoCrop: true, // 是否默认生成截图框
+            // autoCropWidth: 300, // 默认生成截图框宽度
+            // autoCropHeight: 200, // 默认生成截图框高度
+            fixedBox: true, // 固定截图框大小 不允许改变
+            fixed: true, // 是否开启截图框宽高固定比例
+            fixedNumber: [7, 5], // 截图框的宽高比例
+            full: true, // 是否输出原图比例的截图
+            canMoveBox: false, // 截图框能否拖动
+            original: false, // 上传图片按照原始比例渲染
+            centerBox: false, // 截图框是否被限制在图片里面
+            infoTrue: true // true 为展示真实输出图片宽高 false 展示看到的截图框宽高
+        },
+        dialogVisible: false,
+        fileinfo: "",
+        uploadType: "",
+        posterLoading: false,
+        bannerLoading: false
     }
   },
   methods: {
@@ -387,16 +446,51 @@ export default {
         return name
     },
     async handleBeforeUpload(file){
-        const result = await this.handleUploadImage("merchant/activity/banner", file)
-        this.bannerPath = result.url;
-        this.formValidate.banner = result.key
+        const URL = this.getObjectURL(file)
+        this.$nextTick(() => {
+            this.option.img =  URL
+            this.dialogVisible = true
+        })
+        this.fileinfo = file;
+        this.uploadType = "banner";
+        this.option.fixedNumber = [69, 32]
     },
+    getObjectURL (file) {  
+      let url = null ;   
+      if (window.createObjectURL!=undefined) { // basic  
+        url = window.createObjectURL(file) ;  
+      } else if (window.URL!=undefined) { // mozilla(firefox)  
+        url = window.URL.createObjectURL(file) ;  
+      } else if (window.webkitURL!=undefined) { // webkit or chrome  
+        url = window.webkitURL.createObjectURL(file) ;  
+      }  
+      return url ;  
+    },  
     async handleBeforeUploadPoster(file){
-        const result = await this.handleUploadImage("merchant/activity/poster", file)
-        this.posterPath = result.url;
-        this.formValidate.poster = result.key
+        const URL = this.getObjectURL(file)
+        this.$nextTick(() => {
+            this.option.img =  URL
+            this.dialogVisible = true
+        })
+        this.fileinfo = file
+        this.uploadType = "poster";
+        this.option.fixedNumber = [23, 40]
     },
-    async handleUploadImage(floder, file){
+    async handleUploadBanner(data, file){
+        this.bannerLoading = true
+        const result = await this.handleUploadImage("merchant/activity/banner", data, file)
+        this.bannerPath = result.url;
+        this.formValidate.banner = result.key;
+        this.bannerLoading = false
+    },
+    async handleUploadPoster(data, file){
+        this.posterLoading = true
+        const result = await this.handleUploadImage("merchant/activity/poster", data, file)
+        this.posterPath = result.url;
+        this.formValidate.poster = result.key;
+        this.posterLoading = false;
+    },
+    async handleUploadImage(floder, data, file){
         const result = await getOssFileSign({
             floder,
             fileName: file.name
@@ -407,12 +501,22 @@ export default {
         FormDatas.append('OSSAccessKeyId', result.OSSAccessKeyId);
         FormDatas.append('success_action_status', result.success_action_status);
         FormDatas.append('signature', result.signature);
-        FormDatas.append('file', file);
+        FormDatas.append('file', data);
         try{
             await uploadImage(FormDatas)
+            return result
         }catch(error){
             return result
         }
+    },
+    finish() {
+      this.$refs.cropper.getCropBlob(async (data) => {
+            if (this.uploadType === "banner") {
+                this.handleUploadBanner(data, this.fileinfo)
+            } else {
+                this.handleUploadPoster(data, this.fileinfo)
+            }
+      })
     },
     handleFormatError(file){
       this.$Message.warning('文件 ' + file.name + ' 格式不正确，请上传.jpg或者.jpeg或者.png文件。')
@@ -482,10 +586,14 @@ export default {
     flex-direction: column;
 }
 .detail-upload {
-    height: 600px; 
     width: 345px;
+    height: 600px; 
     display: flex;
     justify-content: center;
     flex-direction: column;
+}
+.cropper-content .cropper {
+    width: auto;
+    height: 500px;
 }
 </style>
