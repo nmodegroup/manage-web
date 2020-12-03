@@ -79,7 +79,7 @@
                 <Input v-model="formValidate.phone" type="number" placeholder="请输入联系电话" :minlength="11" :maxlength="11"/>
             </FormItem>
             <FormItem label="嘉宾信息" prop="guest" style="width: 320px">
-                <Input v-model="formValidate.guest" placeholder="请输入嘉宾姓名（多个用','隔开）"/>
+                <Input v-model="formValidate.guest" placeholder="请输入嘉宾姓名（多个用'|'隔开）"/>
             </FormItem>
             <FormItem label="活动费用" required>
                  <Row>
@@ -395,9 +395,14 @@ export default {
                 const location = await this.geolocation()
                 this.formValidate.lng = location.lng;
                 this.formValidate.lat = location.lat;
-                await this.postUpdateActivity()
-                this.$Message.success('操作成功');
-                this.$router.push("/mch/activity")
+                try{
+                    await this.postUpdateActivity()
+                    this.$Message.success('操作成功');
+                    this.$router.push("/mch/activity")
+                }catch(error){
+                    console.log(error)
+                    this.$Message.error(error.msg);
+                }
             } else {
                 return false
             }
