@@ -184,6 +184,19 @@ export default {
             }
           },
           {
+            title: '活动banner图',
+            width:130,
+            render: (h,params) => {
+              return h('a',{
+                 on: {
+                  click: () => {
+                    this.lookBigImg(params.row.banner, params.row.nickName)
+                  }
+                }
+              }, '点击查看大图')
+            }
+          },
+          {
             title: '审核状态',
             width:100,
             render: (h,params) => {
