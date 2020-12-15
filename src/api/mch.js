@@ -1,5 +1,6 @@
 import request from '@/libs/service'
 import requestParams from '@/libs/requestParams';
+import qs from 'qs'
 export function get_account_list (data) {//商家管理获取账号列表
   return request({
     url: '/web/merchant/list' + requestParams.generateParams(data),
@@ -223,11 +224,12 @@ export function get_mch_shops (data) {//获取店铺列表
 
 export function post_update_activity (data) {//增/编辑活动
   return request({
-    url: '/web/merchant/activity' + requestParams.generateParams(data),
+    url: '/web/merchant/activity',
     method: 'post',
     headers: {
       'Content-type': 'application/x-www-form-urlencoded'
-    }
+    },
+    data: qs.stringify(data)
   })
 }
 
